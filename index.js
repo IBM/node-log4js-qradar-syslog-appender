@@ -23,7 +23,6 @@ var log4js = require('log4js'),
 // var logger = log4js.getLogger('qradar-syslog-appender-lib');
 
 
-
 module.exports = {
     appender: appender,
     configure: configure
@@ -83,13 +82,16 @@ function connected(message) {
 
 function logMessage(log) {
     if (!syslogConnectionSingleton.connection) {
-        setTimeout(logMessage.bind(this, log), 100);
-        return;
+        return setTimeout(logMessage.bind(this, log), 100);
     }
 
-    if (log.categoryName !== 'audit-logs') return;
+    var logWhitelist = process.env.log4js_syslog_appender_whitelist;
+    var categoriesToSend = logWhitelist && logWhitelist.split(',');
+
+    if (logWhitelist && categoriesToSend.indexOf(log.categoryName) === -1) return;
 
     var message = log.data.join(' | ');
+
     syslogConnectionSingleton.connection.write(new Buffer(message, 'utf8'));
 }
 
