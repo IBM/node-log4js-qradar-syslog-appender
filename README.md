@@ -2,8 +2,8 @@
 This repo is a syslog appender for node-log4js.
 
 ## To install
-npm install git+https://github.ibm.com/hermanba/node-log4js-syslog-appender#0.0.1 --save
-Add the following appender to your log4js.json file:
+`npm install git+https://github.ibm.com/hermanba/node-log4js-syslog-appender#0.0.1 --save`
+- Add the following appender to your log4js.json file:
 ```
 {
             "type": "qradar-syslog-appender",
