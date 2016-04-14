@@ -109,9 +109,11 @@ function formattedMessage(message) {
 
 function configure(config) {
     if (!process.env.log4js_syslog_appender_enabled) {
-        console.log('Syslog appender is not enabled');
-        return;
+        return function() {};
+    } else {
+        console.log('Syslog appender is enabled');
     }
+    
     if (config.appender) {
         log4js.loadAppender(config.appender.type);
         config.actualAppender = log4js.appenderMakers[config.appender.type](config.appender);

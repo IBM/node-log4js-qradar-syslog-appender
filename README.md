@@ -2,7 +2,7 @@
 This repo is a syslog appender for node-log4js.
 
 ## To install
-`npm install git+https://github.ibm.com/hermanba/node-log4js-syslog-appender#v0.1.2 --save`
+`npm install git+https://github.ibm.com/hermanba/node-log4js-syslog-appender#v0.1.3 --save`
 - Set the following environment variable to enable the appender: `export log4js_syslog_appender_enabled=true`
 - *For local deveopment only*: Add the following appender to your log4js.json file:
 ```
