@@ -6,7 +6,7 @@ This repo is a syslog appender for node-log4js.
 - *For local deveopment only*: Add the following appender to your log4js.json file:
 ```
 {
-            "type": "qradar-syslog-appender",
+            "type": "node-log4js-syslog-appender",
             "options": {
                 "host": "localhost",
                 "port": "514",
@@ -26,7 +26,7 @@ This repo is a syslog appender for node-log4js.
 - For production environment (and in source), only push the following in the log4js.json file:
 ```
 {
-            "type": "qradar-syslog-appender",
+            "type": "node-log4js-syslog-appender",
             "options": {}
 }
 ```
