@@ -44,27 +44,36 @@ function appender(options) {
                         return;
                     }
 
-                    var tlsOptions = options;
-                    delete tlsOptions.certificatePath;
-                    delete tlsOptions.privateKeyPath;
+                    fs.readFile(options.caPath, function(err, caCert) {
+                        if (err) {
+                            console.error('Error while loading ca key from path: ' + options.caPath + ' Error: ' + JSON.stringify(err, null, 2));
+                            return;
+                        }
 
-                    tlsOptions.cert = certificate;
-                    tlsOptions.key = key;
+                        var tlsOptions = options;
+                        delete tlsOptions.certificatePath;
+                        delete tlsOptions.privateKeyPath;
+                        delete tlsOptions.caPath;
 
-                    syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log));
+                        tlsOptions.cert = certificate;
+                        tlsOptions.key = key;
+                        tlsOptions.ca = caCert;
 
-                    syslogConnectionSingleton.connection.setEncoding('utf8');
-                    syslogConnectionSingleton.connection.on('error', function(err) {
-                        console.error('error in connection. Error: ' + JSON.stringify(err, null, 2));
-                        syslogConnectionSingleton.connection = null;
-                    });
-                    syslogConnectionSingleton.connection.on('close', function(err) {
-                        console.warn('Connection closed. Error: ' + JSON.stringify(err, null, 2));
-                        syslogConnectionSingleton.connection = null;
-                    });
-                    syslogConnectionSingleton.connection.on('end', function(err) {
-                        console.warn('Connection ended. Error: ' + JSON.stringify(err, null, 2));
-                        syslogConnectionSingleton.connection = null;
+                        syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log));
+
+                        syslogConnectionSingleton.connection.setEncoding('utf8');
+                        syslogConnectionSingleton.connection.on('error', function(err) {
+                            console.error('error in connection. Error: ' + JSON.stringify(err, null, 2));
+                            syslogConnectionSingleton.connection = null;
+                        });
+                        syslogConnectionSingleton.connection.on('close', function(err) {
+                            console.warn('Connection closed. Error: ' + JSON.stringify(err, null, 2));
+                            syslogConnectionSingleton.connection = null;
+                        });
+                        syslogConnectionSingleton.connection.on('end', function(err) {
+                            console.warn('Connection ended. Error: ' + JSON.stringify(err, null, 2));
+                            syslogConnectionSingleton.connection = null;
+                        });
                     });
 
                 });
@@ -125,7 +134,7 @@ function configure(config) {
         certificatePath: process.env.log4js_syslog_appender_certificatePath || config.options && config.options.certificatePath,
         privateKeyPath: process.env.log4js_syslog_appender_privateKeyPath || config.options && config.options.privateKeyPath,
         passphrase: process.env.log4js_syslog_appender_passphrase || config.options && config.options.passphrase,
-        ca: process.env.log4js_syslog_appender_ca || config.options && config.options.ca,
+        caPath: process.env.log4js_syslog_appender_caPath || config.options && config.options.caPath,
         facility: process.env.log4js_syslog_appender_facility || config.options && config.options.facility,
         tag: process.env.log4js_syslog_appender_tag || config.options && config.options.tag,
         leef: process.env.log4js_syslog_appender_leef || config.options && config.options.leef,
