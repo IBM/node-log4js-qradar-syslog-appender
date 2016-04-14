@@ -2,12 +2,13 @@
 This repo is a syslog appender for node-log4js.
 
 ## To install
-`npm install git+https://github.ibm.com/hermanba/node-log4js-syslog-appender#v0.1.1 --save`
+`npm install git+https://github.ibm.com/hermanba/node-log4js-syslog-appender#v0.1.2 --save`
+- Set the following environment variable to enable the appender: `export log4js_syslog_appender_enabled=true`
 - *For local deveopment only*: Add the following appender to your log4js.json file:
 ```
 {
-            "type": "node-log4js-syslog-appender",
-            "options": {
+        "type": "node-log4js-syslog-appender",
+        "options": {
                 "host": "localhost",
                 "port": "514",
                 "certificatePath": "keys/domain.crt",
@@ -20,18 +21,19 @@ This repo is a syslog appender for node-log4js.
                 "vendor": "IBM",
                 "product": "otc-api",
                 "product_version": "1.0"
-            }
+        }
 }
 ```
 - For production environment (and in source), only push the following in the log4js.json file:
 ```
 {
-            "type": "node-log4js-syslog-appender",
-            "options": {}
+        "type": "node-log4js-syslog-appender",
+        "options": {}
 }
 ```
 - Set the following env vars (in pipeline - values depending on your setup/app):
 ```
+export log4js_syslog_appender_enabled=true
 export log4js_syslog_appender_whitelist=audit-logs,audit-logs-v2
 export log4js_syslog_appender_host=localhost
 export log4js_syslog_appender_port=514
