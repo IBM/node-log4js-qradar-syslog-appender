@@ -2,7 +2,6 @@
 This repo is a syslog appender for node-log4js.
 
 ## To install
-`npm install git+https://github.ibm.com/org-ids/node-log4js-syslog-appender#v0.1.3 --save`
 `npm install git+https://github.ibm.com/org-ids/node-log4js-syslog-appender#v0.1.4 --save`
 - Set the following environment variable to enable the appender: `export log4js_syslog_appender_enabled=true`
 - The default behavior is all log messages will be send to syslog, you can override this behavior by
