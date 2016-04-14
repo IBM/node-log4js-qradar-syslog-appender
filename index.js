@@ -97,5 +97,20 @@ function configure(config) {
         config.actualAppender = log4js.appenderMakers[config.appender.type](config.appender);
     }
 
-    return appender(config.options);
+    var options = {
+        host: process.env.log4js_syslog_appender_host || config.options && config.options.host,
+        port: process.env.log4js_syslog_appender_port || config.options && config.options.port,
+        certificatePath: process.env.log4js_syslog_appender_certificatePath || config.options && config.options.certificatePath,
+        privateKeyPath: process.env.log4js_syslog_appender_privateKeyPath || config.options && config.options.privateKeyPath,
+        passphrase: process.env.log4js_syslog_appender_passphrase || config.options && config.options.passphrase,
+        ca: process.env.log4js_syslog_appender_ca || config.options && config.options.ca,
+        facility: process.env.log4js_syslog_appender_facility || config.options && config.options.facility,
+        tag: process.env.log4js_syslog_appender_tag || config.options && config.options.tag,
+        leef: process.env.log4js_syslog_appender_leef || config.options && config.options.leef,
+        vendor: process.env.log4js_syslog_appender_vendor || config.options && config.options.vendor,
+        product: process.env.log4js_syslog_appender_product || config.options && config.options.product,
+        product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version
+    };
+
+    return appender(options);
 };
