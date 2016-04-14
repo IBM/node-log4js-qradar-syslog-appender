@@ -31,7 +31,8 @@ module.exports = {
 
 function appender(options) {
     return function(log) {
-        if (!syslogConnectionSingleton.connection) {
+        if (!syslogConnectionSingleton.connection && !syslogConnectionSingleton.connecting) {
+            syslogConnectionSingleton.connecting=true;
             fs.readFile(options.certificatePath, function(err, certificate) {
                 if (err) {
                     console.error('Error while loading certificate from path: ' + options.certificatePath + ' Error: ' + JSON.stringify(err, null, 2));
@@ -51,16 +52,20 @@ function appender(options) {
                     tlsOptions.cert = certificate;
                     tlsOptions.key = key;
 
-                    syslogConnectionSingleton.connection = tls.connect(tlsOptions, logMessage.bind(this, log));
+                    syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log));
+
                     syslogConnectionSingleton.connection.setEncoding('utf8');
                     syslogConnectionSingleton.connection.on('error', function(err) {
                         console.error('error in connection. Error: ' + JSON.stringify(err, null, 2));
+                        syslogConnectionSingleton.connection = null;
                     });
                     syslogConnectionSingleton.connection.on('close', function(err) {
                         console.warn('Connection closed. Error: ' + JSON.stringify(err, null, 2));
+                        syslogConnectionSingleton.connection = null;
                     });
                     syslogConnectionSingleton.connection.on('end', function(err) {
                         console.warn('Connection ended. Error: ' + JSON.stringify(err, null, 2));
+                        syslogConnectionSingleton.connection = null;
                     });
 
                 });
@@ -71,7 +76,17 @@ function appender(options) {
     }
 };
 
+function connected(message) {
+    syslogConnectionSingleton.connecting = false;
+    logMessage(message);
+};
+
 function logMessage(log) {
+    if (!syslogConnectionSingleton.connection) {
+        setTimeout(logMessage.bind(this, log), 100);
+        return;
+    }
+
     if (log.categoryName !== 'audit-logs') return;
 
     var message = log.data.join(' | ');

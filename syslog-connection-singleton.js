@@ -26,4 +26,4 @@ singleton.getInstance = function() {
 
 // only expose a function that returns the current instance if it exists
 // otherwise creates a new one.
-module.exports = singleton.getInstance;
+module.exports = singleton.getInstance();
