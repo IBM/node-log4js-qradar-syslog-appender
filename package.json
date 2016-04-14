@@ -1,5 +1,5 @@
 {
-  "name": "qradar-syslog-appender",
+  "name": "node-log4js-syslog-appender",
   "version": "0.1.0",
   "description": "",
   "main": "index.js",
