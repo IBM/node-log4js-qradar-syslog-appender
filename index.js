@@ -12,7 +12,6 @@ var log4js = require('log4js'),
     syslogConnectionSingleton = require('./syslog-connection-singleton'),
     tls = require('tls'),
     fs = require('fs'),
-    _ = require('underscore'),
     util = require('util');
 
 
@@ -45,12 +44,12 @@ function appender(options) {
                         return;
                     }
 
-                    var tlsOptions = _.omit(options, ['certificatePath', 'privateKeyPath']);
+                    var tlsOptions = options;
+                    delete tlsOptions.certificatePath;
+                    delete tlsOptions.privateKeyPath;
 
-                    tlsOptions = _.extend(tlsOptions, {
-                        cert: certificate,
-                        key: key
-                    });
+                    tlsOptions.cert = certificate;
+                    tlsOptions.key = key;
 
                     syslogConnectionSingleton.connection = tls.connect(tlsOptions, logMessage.bind(this, log));
                     syslogConnectionSingleton.connection.setEncoding('utf8');
@@ -73,12 +72,10 @@ function appender(options) {
 };
 
 function logMessage(log) {
-    console.log('category: ' + log.categoryName);
     if (log.categoryName !== 'audit-logs') return;
 
     var message = log.data.join(' | ');
     syslogConnectionSingleton.connection.write(new Buffer(message, 'utf8'));
-    console.log('message: ' + message);
 }
 
 function formattedMessage(message) {
