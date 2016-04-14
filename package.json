@@ -1,0 +1,17 @@
+{
+  "name": "qradar-syslog-appender",
+  "version": "0.1.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "IBM",
+  "private": true,
+  "dependencies": {
+    "fs": "0.0.2",
+    "log4js": "^0.6.33",
+    "tls": "0.0.1"
+  }
+}
