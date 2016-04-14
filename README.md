@@ -50,7 +50,6 @@ export log4js_syslog_appender_product_version=1.0
 specifying which loggers' log messages to send via the comma separated list env var `log4js_syslog_appender_whitelist`
 
 ## Issues
-- No re-connection attempts on connection error, close or ending.
 - No tests.
 - Message headers may be missing (some form of the formattedMessage function may do this later on).
 
