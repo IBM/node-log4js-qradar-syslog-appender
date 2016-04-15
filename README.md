@@ -1,9 +1,14 @@
 # node-log4js-syslog-appender
 This repo is a syslog appender for node-log4js.
 
+
+## To upgrade
+- `npm uninstall node-log4js-syslog-appender --save`
+- `npm install git+https://github.ibm.com/org-ids/node-log4js-syslog-appender#<latestTag> --save`
+
 ## To install
-`npm install git+https://github.ibm.com/org-ids/node-log4js-syslog-appender#v0.1.4 --save`
-- Set the following environment variable to enable the appender: `export log4js_syslog_appender_enabled=true`
+`npm install git+https://github.ibm.com/org-ids/node-log4js-syslog-appender#<latestTag> --save`
+- Set the following environment variable to true in order to enable the appender: `export log4js_syslog_appender_enabled=true`
 - The default behavior is all log messages will be send to syslog, you can override this behavior by
 specifying which loggers' log messages to send via the comma separated list env var `export log4js_syslog_appender_whitelist=audit-logs`
 - *For local deveopment only*: Add the following appender to your log4js.json file:
