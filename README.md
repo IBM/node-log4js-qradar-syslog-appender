@@ -5,6 +5,7 @@ This repo is a syslog appender for node-log4js.
 ## To upgrade
 - `npm uninstall node-log4js-syslog-appender --save`
 - `npm install git+https://github.ibm.com/org-ids/node-log4js-syslog-appender#<latestTag> --save`
+- You can find the latestTag here: https://github.ibm.com/org-ids/node-log4js-syslog-appender/releases , something like "v0.1.4"
 
 ## To install
 `npm install git+https://github.ibm.com/org-ids/node-log4js-syslog-appender#<latestTag> --save`
