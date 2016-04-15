@@ -12,7 +12,8 @@ var log4js = require('log4js'),
     syslogConnectionSingleton = require('./syslog-connection-singleton'),
     tls = require('tls'),
     fs = require('fs'),
-    util = require('util');
+    util = require('util'),
+    os = require('os');
 
 
 // Configuration for logging
@@ -59,7 +60,7 @@ function appender(options) {
                         tlsOptions.key = key;
                         tlsOptions.ca = caCert;
 
-                        syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log));
+                        syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log, options));
 
                         syslogConnectionSingleton.connection.setEncoding('utf8');
                         syslogConnectionSingleton.connection.on('error', function(err) {
@@ -79,19 +80,19 @@ function appender(options) {
                 });
             });
         } else {
-            logMessage(log);
+            logMessage(log, options);
         }
     }
 };
 
-function connected(message) {
+function connected(message, options) {
     syslogConnectionSingleton.connecting = false;
-    logMessage(message);
+    logMessage(message, options);
 };
 
-function logMessage(log) {
+function logMessage(log, options) {
     if (!syslogConnectionSingleton.connection) {
-        return setTimeout(logMessage.bind(this, log), 100);
+        return setTimeout(logMessage.bind(this, log, options), 100);
     }
 
     var logWhitelist = process.env.log4js_syslog_appender_whitelist;
@@ -99,18 +100,31 @@ function logMessage(log) {
 
     if (logWhitelist && categoriesToSend.indexOf(log.categoryName) === -1) return;
 
-    var message = log.data.join(' | ');
+    var formattedMessage = formatMessage(log.data.join(' | '), log.level && log.level.levelStr, options);
 
-    syslogConnectionSingleton.connection.write(new Buffer(message, 'utf8'));
+    syslogConnectionSingleton.connection.write(formattedMessage);
 }
 
-function formattedMessage(message) {
+function levelToSeverity(levelStr) {
+    var levels = [
+        'FATAL',
+        'ERROR',
+        'WARN',
+        'INFO',
+        'DEBUG',
+        'TRACE'
+    ];
+
+    return levels.indexOf(levelStr) !== -1 ? levels.indexOf(levelStr) + 1 : 4;
+}
+
+function formatMessage(message, levelStr, options) {
     return util.format(
         '<%d>%s %s %s[%d]:%s\n',
-        '1',
+        22*8+levelToSeverity(levelStr),
         new Date().toJSON(),
-        'localhost',
-        'otc-api',
+        process.env.url || os.hostname(),
+        options.product || process.env.NEW_RELIC_APP_NAME || 'node-log4js-syslog-appender-consumer',
         process.pid,
         message || 'Missing message'
     );
