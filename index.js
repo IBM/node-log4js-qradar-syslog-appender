@@ -120,7 +120,7 @@ function formatMessage(message, levelStr, options) {
         1,
         new Date().toJSON(),
         process.env.url || os.hostname(),
-        options.product || process.env.NEW_RELIC_APP_NAME || 'node-log4js-syslog-appender-consumer',
+        options.product,
         process.pid,
         '-', 
         '-',
@@ -132,28 +132,52 @@ function configure(config) {
     if (process.env.log4js_syslog_appender_enabled !== 'true') {
         return function() {};
     } else {
+        if (config.appender) {
+            log4js.loadAppender(config.appender.type);
+            config.actualAppender = log4js.appenderMakers[config.appender.type](config.appender);
+        }
+
+        var options = {
+            host: process.env.log4js_syslog_appender_host || config.options && config.options.host,
+            port: process.env.log4js_syslog_appender_port || config.options && config.options.port,
+            certificatePath: process.env.log4js_syslog_appender_certificatePath || config.options && config.options.certificatePath,
+            privateKeyPath: process.env.log4js_syslog_appender_privateKeyPath || config.options && config.options.privateKeyPath,
+            passphrase: process.env.log4js_syslog_appender_passphrase || config.options && config.options.passphrase || '',
+            caPath: process.env.log4js_syslog_appender_caPath || config.options && config.options.caPath,
+            facility: process.env.log4js_syslog_appender_facility || config.options && config.options.facility || '',
+            tag: process.env.log4js_syslog_appender_tag || config.options && config.options.tag || '',
+            leef: process.env.log4js_syslog_appender_leef || config.options && config.options.leef || '',
+            vendor: process.env.log4js_syslog_appender_vendor || config.options && config.options.vendor || '',
+            product: process.env.log4js_syslog_appender_product || config.options && config.options.product,
+            product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version || ''
+        };
+
+        if (!verifyOptions(options)) {
+            return function() {};
+        }
         util.log('Syslog appender is enabled');
+        return appender(options);
     }
-    
-    if (config.appender) {
-        log4js.loadAppender(config.appender.type);
-        config.actualAppender = log4js.appenderMakers[config.appender.type](config.appender);
-    }
+};
 
-    var options = {
-        host: process.env.log4js_syslog_appender_host || config.options && config.options.host,
-        port: process.env.log4js_syslog_appender_port || config.options && config.options.port,
-        certificatePath: process.env.log4js_syslog_appender_certificatePath || config.options && config.options.certificatePath,
-        privateKeyPath: process.env.log4js_syslog_appender_privateKeyPath || config.options && config.options.privateKeyPath,
-        passphrase: process.env.log4js_syslog_appender_passphrase || config.options && config.options.passphrase,
-        caPath: process.env.log4js_syslog_appender_caPath || config.options && config.options.caPath,
-        facility: process.env.log4js_syslog_appender_facility || config.options && config.options.facility,
-        tag: process.env.log4js_syslog_appender_tag || config.options && config.options.tag,
-        leef: process.env.log4js_syslog_appender_leef || config.options && config.options.leef,
-        vendor: process.env.log4js_syslog_appender_vendor || config.options && config.options.vendor,
-        product: process.env.log4js_syslog_appender_product || config.options && config.options.product,
-        product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version
-    };
+function verifyOptions(options) {
+    var requiredOptions = [
+        'log4js_syslog_appender_host',
+        'log4js_syslog_appender_port',
+        'log4js_syslog_appender_certificatePath',
+        'log4js_syslog_appender_privateKeyPath',
+        'log4js_syslog_appender_caPath',
+        'log4js_syslog_appender_product'
+    ];
+    var valid = true;
 
-    return appender(options);
+    requiredOptions.forEach(function(option) {
+        var key = option.substring(option.lastIndexOf('_')+1);
+        if (!options[key]) {
+            util.log('node-log4js-syslog-appender: ' + key + ' is a required option. It is settable with the ' + option + ' environment variable.');
+            valid = false; // array.forEach is blocking
+        }
+    });
+
+    return valid;
 };
