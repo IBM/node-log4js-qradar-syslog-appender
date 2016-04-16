@@ -12,7 +12,7 @@ This repo is a syslog appender for node-log4js.
 - Set the following environment variable to true in order to enable the appender: `export log4js_syslog_appender_enabled=true`
 - The default behavior is all log messages will be send to syslog, you can override this behavior by
 specifying which loggers' log messages to send via the comma separated list env var `export log4js_syslog_appender_whitelist=audit-logs`
-- *For local deveopment only*: Add the following appender to your log4js.json file:
+- *For local deveopment only*: Add the following appender to your log4js.json file (note this is the minimal valid configuration):
 ```
 {
         "type": "node-log4js-syslog-appender",
@@ -21,14 +21,8 @@ specifying which loggers' log messages to send via the comma separated list env 
                 "port": "6514",
                 "certificatePath": "keys/IDS-crt.pem",
                 "privateKeyPath": "keys/IDS-key.pem",
-                "passphrase": "",
                 "caPath": "keys/ca.pem",
-                "facility": "local6",
-                "tag": "",
-                "leef": "",
-                "vendor": "IBM",
-                "product": "otc-api",
-                "product_version": "1.0"
+                "product": "otc-api"
           }
 }
 ```
@@ -47,20 +41,13 @@ export log4js_syslog_appender_host=syslog.prd.ccs.ibmcloud.com
 export log4js_syslog_appender_port=6514
 export log4js_syslog_appender_certificatePath=keys/IDS-crt.pem
 export log4js_syslog_appender_privateKeyPath=keys/IDS-key.pem
-export log4js_syslog_appender_passphrase=
 export log4js_syslog_appender_caPath=keys/ca.pem
-export log4js_syslog_appender_facility=local6
-export log4js_syslog_appender_tag=
-export log4js_syslog_appender_leef=
-export log4js_syslog_appender_vendor=IBM
 export log4js_syslog_appender_product=otc-api
-export log4js_syslog_appender_product_version=1.0
 ```
 - Note the certs you need are all attached to the work item here: https://hub.jazz.net/ccm09/resource/itemName/com.ibm.team.workitem.WorkItem/55754
 
-## Issues
-- No tests.
-- Message headers may be missing (some form of the formattedMessage function may do this later on).
+## Issues/areas of improvement
+- No automated tests.
 
 ## Contributions
-- Contributions are very welcome!
+- Contributions are welcome as always. Feel free to submit pull requests and asking them to be merged in the [devops-core channel](https://cloudplatform.slack.com/messages/devops-core).
