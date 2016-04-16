@@ -119,14 +119,21 @@ function levelToSeverity(levelStr) {
 }
 
 function formatMessage(message, levelStr, options) {
+    // format as:
+    // HEADER STRUCTURED_DATA MESSAGE
+    // where HEADER = <PRI>VERSION TIMESTAMP HOSTNAME APP-NAME PROCID MSGID
+    // for details see the RFC here http://tools.ietf.org/html/rfc5424# .
     return util.format(
-        '<%d>%s %s %s[%d]:%s\n',
+        '<%d>%d %s %s %s %d %s %s %s\n',
         22*8+levelToSeverity(levelStr),
+        1,
         new Date().toJSON(),
         process.env.url || os.hostname(),
         options.product || process.env.NEW_RELIC_APP_NAME || 'node-log4js-syslog-appender-consumer',
         process.pid,
-        message || 'Missing message'
+        '-', 
+        '-',
+        message || '{}'
     );
 }
 
@@ -134,7 +141,7 @@ function configure(config) {
     if (process.env.log4js_syslog_appender_enabled !== 'true') {
         return function() {};
     } else {
-        console.log('Syslog appender is enabled');
+        util.log('Syslog appender is enabled');
     }
     
     if (config.appender) {
