@@ -15,15 +15,6 @@ var log4js = require('log4js'),
     util = require('util'),
     os = require('os');
 
-
-// Configuration for logging
-// log4js.configure("./config/log4js.json", {
-//     reloadSecs: 30
-// });
-
-// var logger = log4js.getLogger('qradar-syslog-appender-lib');
-
-
 module.exports = {
     appender: appender,
     configure: configure
@@ -51,7 +42,7 @@ function appender(options) {
                             return;
                         }
 
-                        var tlsOptions = options;
+                        var tlsOptions = JSON.parse(JSON.stringify(options)); // deep copy (no functions in options)
                         delete tlsOptions.certificatePath;
                         delete tlsOptions.privateKeyPath;
                         delete tlsOptions.caPath;
@@ -125,7 +116,7 @@ function formatMessage(message, levelStr, options) {
     // for details see the RFC here http://tools.ietf.org/html/rfc5424# .
     return util.format(
         '<%d>%d %s %s %s %d %s %s %s\n',
-        22*8+levelToSeverity(levelStr),
+        16*8+levelToSeverity(levelStr), // hardcoded facility of local0 which translates to 16 according to RFC. TODO: use passed in facility.
         1,
         new Date().toJSON(),
         process.env.url || os.hostname(),
