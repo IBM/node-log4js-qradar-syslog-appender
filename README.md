@@ -45,6 +45,7 @@ export log4js_syslog_appender_caPath=keys/ca.pem
 export log4js_syslog_appender_product=otc-api
 ```
 - Note the certs you need are all attached to the work item here: https://hub.jazz.net/ccm09/resource/itemName/com.ibm.team.workitem.WorkItem/55754
+- This appender assumes you are using https://github.com/nomiddlename/log4js-node for logging already and that you call log4js.config('./path/to/log4js.json') somewhere in your application (as this will cause this appender to initialize).
 
 ## Issues/areas of improvement
 - No automated tests.
