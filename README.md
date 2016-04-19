@@ -1,5 +1,5 @@
 # node-log4js-syslog-appender
-This repo is a syslog appender for node-log4js.
+Syslog appender for node-log4js.
 
 
 ## To upgrade
