@@ -8,7 +8,6 @@
   },
   "author": "Herman Singh Badwal <hermanba@ca.ibm.com>",
   "license": "IBM",
-  "private": true,
   "dependencies": {
     "fs": "0.0.2",
     "log4js": "^0.6.33",
