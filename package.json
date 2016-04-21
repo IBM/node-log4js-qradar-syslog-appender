@@ -1,12 +1,12 @@
 {
-  "name": "node-log4js-syslog-appender",
-  "version": "0.1.6",
+  "name": "@org-ids/log4js-syslog-appender",
+  "version": "0.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Herman Singh Badwal <hermanba@ca.ibm.com>",
   "license": "IBM",
   "private": true,
   "dependencies": {
