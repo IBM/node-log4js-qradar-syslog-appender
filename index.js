@@ -20,6 +20,15 @@ module.exports = {
     configure: configure
 }
 
+function readCertificate(file, callback) {
+}
+
+function readPrivateKey(file, callback) {
+}
+
+function readCaCert(file, callback) {
+}
+
 function appender(options) {
     return function(log) {
         if (!syslogConnectionSingleton.connection && !syslogConnectionSingleton.connecting) {
@@ -144,6 +153,9 @@ function configure(config) {
             privateKeyPath: process.env.log4js_syslog_appender_privateKeyPath || config.options && config.options.privateKeyPath,
             passphrase: process.env.log4js_syslog_appender_passphrase || config.options && config.options.passphrase || '',
             caPath: process.env.log4js_syslog_appender_caPath || config.options && config.options.caPath,
+            certificateBase64: process.env.log4js_syslog_appender_certificateBase64 || config.options && config.options.certificateBase64,
+            privateKeyBase64: process.env.log4js_syslog_appender_privateKeyBase64 || config.options && config.options.privateKeyBase64,
+            caBase64: process.env.log4js_syslog_appender_caBase64 || config.options && config.options.caBase64,
             facility: process.env.log4js_syslog_appender_facility || config.options && config.options.facility || '',
             tag: process.env.log4js_syslog_appender_tag || config.options && config.options.tag || '',
             leef: process.env.log4js_syslog_appender_leef || config.options && config.options.leef || '',
@@ -164,9 +176,6 @@ function verifyOptions(options) {
     var requiredOptions = [
         'log4js_syslog_appender_host',
         'log4js_syslog_appender_port',
-        'log4js_syslog_appender_certificatePath',
-        'log4js_syslog_appender_privateKeyPath',
-        'log4js_syslog_appender_caPath',
         'log4js_syslog_appender_product'
     ];
     var valid = true;
@@ -178,6 +187,19 @@ function verifyOptions(options) {
             valid = false; // array.forEach is blocking
         }
     });
+
+    [ 
+        'log4js_syslog_appender_certificate',
+        'log4js_syslog_appender_privateKey',
+        'log4js_syslog_appender_ca',
+    ].forEach(function (option) {
+        var key = option.split('_').pop();
+
+        if (!options[key + "Path"] && !options[key + "Base64"]) {
+            util.log('node-log4js-syslog-appender: Either ' + key + 'Path or ' + key + 'Base64 are required options. It is settable with the ' + option + ' environment variable.');
+            valid = false; // array.forEach is blocking
+        }
+    })
 
     return valid;
 };
