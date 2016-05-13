@@ -10,6 +10,7 @@
 
 var log4js = require('log4js'),
     syslogConnectionSingleton = require('./syslog-connection-singleton'),
+    base64Decode = require('./base64-decode'),
     tls = require('tls'),
     fs = require('fs'),
     util = require('util'),
@@ -20,32 +21,31 @@ module.exports = {
     configure: configure
 }
 
-function readCertificate(file, callback) {
-}
-
-function readPrivateKey(file, callback) {
-}
-
-function readCaCert(file, callback) {
+function readBase64StringOrFile(base64, file, callback) {
+    if (base64) {
+        callback(null, base64Decode(base64));
+    } else {
+        fs.readFile(file, callback);
+    }
 }
 
 function appender(options) {
     return function(log) {
         if (!syslogConnectionSingleton.connection && !syslogConnectionSingleton.connecting) {
             syslogConnectionSingleton.connecting=true;
-            fs.readFile(options.certificatePath, function(err, certificate) {
+            readBase64StringOrFile(options.certificateBase64, options.certificatePath, function(err, certificate) {
                 if (err) {
                     console.error('Error while loading certificate from path: ' + options.certificatePath + ' Error: ' + JSON.stringify(err, null, 2));
                     return;
                 }
 
-                fs.readFile(options.privateKeyPath, function(err, key) {
+                readBase64StringOrFile(options.privateKeyBase64, options.privateKeyPath, function(err, key) {
                     if (err) {
                         console.error('Error while loading private key from path: ' + options.privateKeyPath + ' Error: ' + JSON.stringify(err, null, 2));
                         return;
                     }
 
-                    fs.readFile(options.caPath, function(err, caCert) {
+                    readBase64StringOrFile(options.caBase64, options.caPath, function(err, caCert) {
                         if (err) {
                             console.error('Error while loading ca key from path: ' + options.caPath + ' Error: ' + JSON.stringify(err, null, 2));
                             return;
