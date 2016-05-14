@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+     "test": "node node_modules/eslint/bin/eslint ."
   },
   "author": "Herman Singh Badwal <hermanba@ca.ibm.com>",
   "license": "IBM",
@@ -12,5 +12,8 @@
     "fs": "0.0.2",
     "log4js": "^0.6.33",
     "tls": "0.0.1"
+  },
+  "devDependencies": {
+    "eslint": "^2.10.0"
   }
 }
