@@ -67,7 +67,7 @@ export log4js_syslog_appender_rejectUnauthorized=false
 - Note the certs you need are all attached to the work item here: https://hub.jazz.net/ccm09/resource/itemName/com.ibm.team.workitem.WorkItem/55754
 
 ## Issues/areas of improvement
-- No automated tests.
+- More unit tests
 
 ## Contributions
-- Contributions are welcome as always. Feel free to submit pull requests and asking them to be merged in the [devops-core channel](https://cloudplatform.slack.com/messages/devops-core).
+- Contributions are welcome as always. Feel free to submit pull requests. Note that all contributions *must* be submitted through pull requests and have to pass the Travis Status Checks in order for code to be merged into master.
