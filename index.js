@@ -174,9 +174,9 @@ function configure(config) {
         };
 
         // This option is a boolean, but if a string is passed in, we need to
-        // coerece ourselves.
-        if (rejectUnauthorized === "false") {
-            rejectUnauthorized = false;
+        // coerce ourselves.
+        if (options.rejectUnauthorized === "false") {
+            options.rejectUnauthorized = false;
         }
 
         if (!verifyOptions(options)) {
