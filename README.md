@@ -56,9 +56,9 @@ export log4js_syslog_appender_caPath=keys/ca.pem
 
 # Option 2: A more secure way is actually setting the cert itself as env vars. 
 # To shorten the length, we use the base64 encoded values of the certs.
-export log4js_syslog_appender_certificate=alkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
-export log4js_syslog_appender_privateKey=4545FDSFalkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
-export log4js_syslog_appender_ca=3435F43alkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
+export log4js_syslog_appender_certificateBase64=alkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
+export log4js_syslog_appender_privateKeyBase64=4545FDSFalkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
+export log4js_syslog_appender_caBase64=3435F43alkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
 
 # Allow connections to servers with self signed certs.  By default, these
 # connections will fail.
