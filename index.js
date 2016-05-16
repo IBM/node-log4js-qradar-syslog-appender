@@ -10,6 +10,7 @@
 
 var log4js = require('log4js'),
     syslogConnectionSingleton = require('./syslog-connection-singleton'),
+    base64Decode = require('./base64-decode'),
     tls = require('tls'),
     fs = require('fs'),
     util = require('util'),
@@ -20,36 +21,52 @@ module.exports = {
     configure: configure
 }
 
+function readBase64StringOrFile(base64, file, callback) {
+    if (base64) {
+        callback(null, base64Decode(base64));
+    } else {
+        fs.readFile(file, callback);
+    }
+}
+
 function appender(options) {
     return function(log) {
         if (!syslogConnectionSingleton.connection && !syslogConnectionSingleton.connecting) {
             syslogConnectionSingleton.connecting=true;
-            fs.readFile(options.certificatePath, function(err, certificate) {
+            readBase64StringOrFile(options.certificateBase64, options.certificatePath, function(err, certificate) {
                 if (err) {
                     console.error('Error while loading certificate from path: ' + options.certificatePath + ' Error: ' + JSON.stringify(err, null, 2));
                     return;
                 }
 
-                fs.readFile(options.privateKeyPath, function(err, key) {
+                readBase64StringOrFile(options.privateKeyBase64, options.privateKeyPath, function(err, key) {
                     if (err) {
                         console.error('Error while loading private key from path: ' + options.privateKeyPath + ' Error: ' + JSON.stringify(err, null, 2));
                         return;
                     }
 
-                    fs.readFile(options.caPath, function(err, caCert) {
+                    readBase64StringOrFile(options.caBase64, options.caPath, function(err, caCert) {
                         if (err) {
                             console.error('Error while loading ca key from path: ' + options.caPath + ' Error: ' + JSON.stringify(err, null, 2));
                             return;
                         }
 
-                        var tlsOptions = JSON.parse(JSON.stringify(options)); // deep copy (no functions in options)
-                        delete tlsOptions.certificatePath;
-                        delete tlsOptions.privateKeyPath;
-                        delete tlsOptions.caPath;
 
-                        tlsOptions.cert = certificate;
-                        tlsOptions.key = key;
-                        tlsOptions.ca = caCert;
+                        var tlsOptions = {
+                            cert: certificate,
+                            key: key,
+                            ca: caCert,
+                            host: options.host,
+                            port: options.port,
+                            passphrase: options.passphrase,
+                            facility: options.facility,
+                            tag: options.tag,
+                            leef: options.leef,
+                            vendor: options.vendor,
+                            product: options.product,
+                            product_version: options.product_version,
+                            rejectUnauthorized: options.rejectUnauthorized
+                        };
 
                         syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log, options));
 
@@ -144,13 +161,23 @@ function configure(config) {
             privateKeyPath: process.env.log4js_syslog_appender_privateKeyPath || config.options && config.options.privateKeyPath,
             passphrase: process.env.log4js_syslog_appender_passphrase || config.options && config.options.passphrase || '',
             caPath: process.env.log4js_syslog_appender_caPath || config.options && config.options.caPath,
+            certificateBase64: process.env.log4js_syslog_appender_certificateBase64 || config.options && config.options.certificateBase64,
+            privateKeyBase64: process.env.log4js_syslog_appender_privateKeyBase64 || config.options && config.options.privateKeyBase64,
+            caBase64: process.env.log4js_syslog_appender_caBase64 || config.options && config.options.caBase64,
             facility: process.env.log4js_syslog_appender_facility || config.options && config.options.facility || '',
             tag: process.env.log4js_syslog_appender_tag || config.options && config.options.tag || '',
             leef: process.env.log4js_syslog_appender_leef || config.options && config.options.leef || '',
             vendor: process.env.log4js_syslog_appender_vendor || config.options && config.options.vendor || '',
             product: process.env.log4js_syslog_appender_product || config.options && config.options.product,
-            product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version || ''
+            product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version || '',
+            rejectUnauthorized: process.env.log4js_syslog_appender_rejectUnauthorized || config.options && config.options.rejectUnauthorized || true
         };
+
+        // This option is a boolean, but if a string is passed in, we need to
+        // coerce ourselves.
+        if (options.rejectUnauthorized === "false") {
+            options.rejectUnauthorized = false;
+        }
 
         if (!verifyOptions(options)) {
             return function() {};
@@ -164,9 +191,6 @@ function verifyOptions(options) {
     var requiredOptions = [
         'log4js_syslog_appender_host',
         'log4js_syslog_appender_port',
-        'log4js_syslog_appender_certificatePath',
-        'log4js_syslog_appender_privateKeyPath',
-        'log4js_syslog_appender_caPath',
         'log4js_syslog_appender_product'
     ];
     var valid = true;
@@ -178,6 +202,19 @@ function verifyOptions(options) {
             valid = false; // array.forEach is blocking
         }
     });
+
+    [ 
+        'log4js_syslog_appender_certificate',
+        'log4js_syslog_appender_privateKey',
+        'log4js_syslog_appender_ca',
+    ].forEach(function (option) {
+        var key = option.split('_').pop();
+
+        if (!options[key + "Path"] && !options[key + "Base64"]) {
+            util.log('node-log4js-syslog-appender: Either ' + key + 'Path or ' + key + 'Base64 are required options. It is settable with the ' + option + ' environment variable.');
+            valid = false; // array.forEach is blocking
+        }
+    })
 
     return valid;
 };

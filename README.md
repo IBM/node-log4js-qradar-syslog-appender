@@ -43,10 +43,26 @@ export log4js_syslog_appender_enabled=true
 export log4js_syslog_appender_whitelist=audit-logs,audit-logs-v2
 export log4js_syslog_appender_host=syslog.prd.ccs.ibmcloud.com
 export log4js_syslog_appender_port=6514
+export log4js_syslog_appender_product=otc-api
+
+# There are two ways of setting the certs, either through a path (meaning
+# you have to check it into a source control - kind of a nono or 
+# by setting the base64 encoded values as env vars - the right way).
+
+# Option 1: Checking them into source control, then specifying the path to them
 export log4js_syslog_appender_certificatePath=keys/IDS-crt.pem
 export log4js_syslog_appender_privateKeyPath=keys/IDS-key.pem
 export log4js_syslog_appender_caPath=keys/ca.pem
-export log4js_syslog_appender_product=otc-api
+
+# Option 2: A more secure way is actually setting the cert itself as env vars. 
+# To shorten the length, we use the base64 encoded values of the certs.
+export log4js_syslog_appender_certificateBase64=alkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
+export log4js_syslog_appender_privateKeyBase64=4545FDSFalkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
+export log4js_syslog_appender_caBase64=3435F43alkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
+
+# Allow connections to servers with self signed certs.  By default, these
+# connections will fail.
+export log4js_syslog_appender_rejectUnauthorized=false
 ```
 - Note the certs you need are all attached to the work item here: https://hub.jazz.net/ccm09/resource/itemName/com.ibm.team.workitem.WorkItem/55754
 
