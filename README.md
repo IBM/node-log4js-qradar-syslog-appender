@@ -1,4 +1,6 @@
-# node-log4js-syslog-appender
+[![Build Status](https://travis.innovate.ibm.com/org-ids/node-log4js-syslog-appender.svg?token=sqTXDga2eqkhEWnz8poq&branch=master)](https://travis.innovate.ibm.com/org-ids/node-log4js-syslog-appender)
+
+# node-log4js-syslog-appender 
 Syslog appender for node-log4js.
 
 ## Pre-requisites
