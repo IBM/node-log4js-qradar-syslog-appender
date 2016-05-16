@@ -173,6 +173,12 @@ function configure(config) {
             rejectUnauthorized: process.env.log4js_syslog_appender_rejectUnauthorized || config.options && config.options.rejectUnauthorized || true
         };
 
+        // This option is a boolean, but if a string is passed in, we need to
+        // coerece ourselves.
+        if (rejectUnauthorized === "false") {
+            rejectUnauthorized = false;
+        }
+
         if (!verifyOptions(options)) {
             return function() {};
         }
