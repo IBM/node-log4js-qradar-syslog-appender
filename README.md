@@ -47,6 +47,10 @@ export log4js_syslog_appender_certificatePath=keys/IDS-crt.pem
 export log4js_syslog_appender_privateKeyPath=keys/IDS-key.pem
 export log4js_syslog_appender_caPath=keys/ca.pem
 export log4js_syslog_appender_product=otc-api
+
+# Allow connections to servers with self signed certs.  By default, these
+# connections will fail.
+export log4js_syslog_appender_rejectUnauthorized=false
 ```
 - Note the certs you need are all attached to the work item here: https://hub.jazz.net/ccm09/resource/itemName/com.ibm.team.workitem.WorkItem/55754
 

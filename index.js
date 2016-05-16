@@ -51,14 +51,22 @@ function appender(options) {
                             return;
                         }
 
-                        var tlsOptions = JSON.parse(JSON.stringify(options)); // deep copy (no functions in options)
-                        delete tlsOptions.certificatePath;
-                        delete tlsOptions.privateKeyPath;
-                        delete tlsOptions.caPath;
 
-                        tlsOptions.cert = certificate;
-                        tlsOptions.key = key;
-                        tlsOptions.ca = caCert;
+                        var tlsOptions = {
+                            cert: certificate,
+                            key: key,
+                            ca: caCert,
+                            host: options.host,
+                            port: options.port,
+                            passphrase: options.passphrase,
+                            facility: options.facility,
+                            tag: options.tag,
+                            leef: options.leef,
+                            vendor: options.vendor,
+                            product: options.product,
+                            product_version: options.product_version,
+                            rejectUnauthorized: options.rejectUnauthorized
+                        };
 
                         syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log, options));
 
@@ -161,7 +169,8 @@ function configure(config) {
             leef: process.env.log4js_syslog_appender_leef || config.options && config.options.leef || '',
             vendor: process.env.log4js_syslog_appender_vendor || config.options && config.options.vendor || '',
             product: process.env.log4js_syslog_appender_product || config.options && config.options.product,
-            product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version || ''
+            product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version || '',
+            rejectUnauthorized: process.env.log4js_syslog_appender_rejectUnauthorized || config.options && config.options.rejectUnauthorized || true
         };
 
         if (!verifyOptions(options)) {
