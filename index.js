@@ -37,7 +37,8 @@ function retryLogic(retryFunction, tries) {
         tries++;
     }
 
-    if (tries >= syslogConnectionSingleton.MAX_TRIES) {
+    if (tries > syslogConnectionSingleton.MAX_TRIES) {
+        syslogConnectionSingleton.circuitBreak = true;
         util.log('QRadar Syslog Appender: Tried sending a message ' + syslogConnectionSingleton.MAX_TRIES + 
             ' times but the client was not connected. ' + 
             'Initiating circuit breaker protocol. ' + 
@@ -47,7 +48,6 @@ function retryLogic(retryFunction, tries) {
         // to send log messages to qradar for syslogConnectionSingleton.CIRCUIT_BREAK_MINS.
 
         syslogConnectionSingleton.droppedMessages++;
-        syslogConnectionSingleton.circuitBreak = true;
         setTimeout(connectCircuit.bind(this), 
             syslogConnectionSingleton.CIRCUIT_BREAK_MINS * 60 * 1000);
         return;
