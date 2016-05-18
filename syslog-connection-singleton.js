@@ -11,7 +11,11 @@
 // internal constructor only
 var singleton = function() {
     return {
-        connection : null
+        connection : null,
+        droppedMessages: 0,
+        circuitBreak: false,
+        MAX_TRIES: 3,
+        CIRCUIT_BREAK_MINS: 10
     };
 };
 

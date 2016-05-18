@@ -18,29 +18,79 @@ var log4js = require('log4js'),
 module.exports = {
     appender: appender,
     configure: configure
-}
+};
 
-function appender(options) {
-    return function(log) {
-        if (!syslogConnectionSingleton.connection && !syslogConnectionSingleton.connecting) {
-            syslogConnectionSingleton.connecting=true;
-            fs.readFile(options.certificatePath, function(err, certificate) {
+
+function retryLogic(retryFunction, tries) {
+    // we are in circuit break mode. There is something wrong with the qradar connection. We won't try to
+    // send any log messages to qradar until the circuit is connected again.
+    if (syslogConnectionSingleton.circuitBreak) {
+        syslogConnectionSingleton.droppedMessages++;
+        return;
+    }
+    
+    // initialize (or increment if already initialized) tries
+    if (!tries) {
+        tries = 1;
+    }
+    else {
+        tries++;
+    }
+
+    if (tries >= syslogConnectionSingleton.MAX_TRIES) {
+        util.log('QRadar Syslog Appender: Tried sending a message ' + syslogConnectionSingleton.MAX_TRIES + 
+            ' times but the client was not connected. ' + 
+            'Initiating circuit breaker protocol. ' + 
+            'For the next ' + syslogConnectionSingleton.CIRCUIT_BREAK_MINS + 
+            ' mins, we will not attempt to send any messages to Logmet.');
+        // circuit breaker logic - if detected bad connection, stop trying
+        // to send log messages to qradar for syslogConnectionSingleton.CIRCUIT_BREAK_MINS.
+
+        syslogConnectionSingleton.droppedMessages++;
+        syslogConnectionSingleton.circuitBreak = true;
+        setTimeout(connectCircuit.bind(this), 
+            syslogConnectionSingleton.CIRCUIT_BREAK_MINS * 60 * 1000);
+        return;
+    }
+    setTimeout(retryFunction.bind(this, tries), 100);
+    return;
+};
+
+function connectCircuit() {
+    util.log('QRadar Syslog Appender: Re-connecting the circuit. So far we have dropped ' + 
+        syslogConnectionSingleton.droppedMessages + ' messages.');
+    syslogConnectionSingleton.circuitBreak = false;
+};
+
+function loggingFunction(options, log, tries) {
+    // we are in circuit break mode. There is something wrong with the qradar connection. We won't try to
+    // send any log messages to qradar until the circuit is connected again.
+    if (syslogConnectionSingleton.circuitBreak) {
+        syslogConnectionSingleton.droppedMessages++;
+        return;
+    }
+
+    if (!syslogConnectionSingleton.connection && !syslogConnectionSingleton.connecting) {
+        syslogConnectionSingleton.connecting = true;
+
+        // set up mutual auth.
+        fs.readFile(options.certificatePath, function(err, certificate) {
+            if (err) {
+                console.error('Error while loading certificate from path: ' + options.certificatePath + ' Error: ' + JSON.stringify(err, null, 2));
+                return;
+            }
+
+            fs.readFile(options.privateKeyPath, function(err, key) {
                 if (err) {
-                    console.error('Error while loading certificate from path: ' + options.certificatePath + ' Error: ' + JSON.stringify(err, null, 2));
+                    console.error('Error while loading private key from path: ' + options.privateKeyPath + ' Error: ' + JSON.stringify(err, null, 2));
                     return;
                 }
 
-                fs.readFile(options.privateKeyPath, function(err, key) {
+                fs.readFile(options.caPath, function(err, caCert) {
                     if (err) {
-                        console.error('Error while loading private key from path: ' + options.privateKeyPath + ' Error: ' + JSON.stringify(err, null, 2));
+                        console.error('Error while loading ca key from path: ' + options.caPath + ' Error: ' + JSON.stringify(err, null, 2));
                         return;
                     }
-
-                    fs.readFile(options.caPath, function(err, caCert) {
-                        if (err) {
-                            console.error('Error while loading ca key from path: ' + options.caPath + ' Error: ' + JSON.stringify(err, null, 2));
-                            return;
-                        }
 
                         var tlsOptions = JSON.parse(JSON.stringify(options)); // deep copy (no functions in options)
                         delete tlsOptions.certificatePath;
@@ -51,50 +101,72 @@ function appender(options) {
                         tlsOptions.key = key;
                         tlsOptions.ca = caCert;
 
-                        syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log, options));
+                        syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log, options, tries));
 
                         syslogConnectionSingleton.connection.setEncoding('utf8');
                         syslogConnectionSingleton.connection.on('error', function(err) {
-                            console.error('error in connection. Error: ' + JSON.stringify(err, null, 2));
-                            syslogConnectionSingleton.connection = null;
+                            cleanupConnection(err, 'error');
+                            retryLogic(loggingFunction.bind(this, options, log), tries);
                         });
                         syslogConnectionSingleton.connection.on('close', function(err) {
-                            console.warn('Connection closed. Error: ' + JSON.stringify(err, null, 2));
-                            syslogConnectionSingleton.connection = null;
+                            cleanupConnection(err, 'closed');
+                            retryLogic(loggingFunction.bind(this, options, log), tries);
                         });
                         syslogConnectionSingleton.connection.on('end', function(err) {
-                            console.warn('Connection ended. Error: ' + JSON.stringify(err, null, 2));
-                            syslogConnectionSingleton.connection = null;
+                            cleanupConnection(err, 'ended');
+                            retryLogic(loggingFunction.bind(this, options, log), tries);
                         });
                     });
 
-                });
             });
-        } else {
-            logMessage(log, options);
-        }
+        });
+    } else {
+        logMessage(log, options, tries);
     }
 };
 
-function connected(message, options) {
+function cleanupConnection(err, type) {
+    console.warn('QRadar Syslog appender: connection ' + type + '. Error: ' + JSON.stringify(err, null, 2));
+    if (syslogConnectionSingleton.connection) {
+        syslogConnectionSingleton.connection.destroy();
+        syslogConnectionSingleton.connection = null;
+    }
     syslogConnectionSingleton.connecting = false;
-    logMessage(message, options);
 };
 
-function logMessage(log, options) {
-    if (!syslogConnectionSingleton.connection) {
-        return setTimeout(logMessage.bind(this, log, options), 100);
+function appender(options) {
+    return loggingFunction.bind(this, options);
+};
+
+function connected(message, options, tries) {
+    syslogConnectionSingleton.connecting = false;
+    console.warn('QRadar Syslog appender: we have reconnected to QRadar. ' + 
+        syslogConnectionSingleton.droppedMessages + ' messages have been dropped.');
+    logMessage(message, options, tries);
+};
+
+function logMessage(log, options, tries) {
+    // we are in circuit break mode. There is something wrong with the qradar connection. We won't try to
+    // send any log messages to qradar until the circuit is connected again.
+    if (syslogConnectionSingleton.circuitBreak) {
+        syslogConnectionSingleton.droppedMessages++;
+        return;
     }
 
+    // we got disconnected. Try to reconnect
+    if (!syslogConnectionSingleton.connection) {
+        return retryLogic(loggingFunction.bind(this, options, log), tries);
+    }
+
+    // if theres a whitelist then only send those messages
     var logWhitelist = process.env.log4js_syslog_appender_whitelist;
     var categoriesToSend = logWhitelist && logWhitelist.split(',');
-
     if (logWhitelist && categoriesToSend.indexOf(log.categoryName) === -1) return;
 
     var formattedMessage = formatMessage(log.data.join(' | '), log.level && log.level.levelStr, options);
 
     syslogConnectionSingleton.connection.write(formattedMessage);
-}
+};
 
 function levelToSeverity(levelStr) {
     var levels = [
@@ -107,7 +179,7 @@ function levelToSeverity(levelStr) {
     ];
 
     return levels.indexOf(levelStr) !== -1 ? levels.indexOf(levelStr) + 1 : 4;
-}
+};
 
 function formatMessage(message, levelStr, options) {
     // format as:
@@ -126,7 +198,7 @@ function formatMessage(message, levelStr, options) {
         '-',
         message || '{}'
     );
-}
+};
 
 function configure(config) {
     if (process.env.log4js_syslog_appender_enabled !== 'true') {
