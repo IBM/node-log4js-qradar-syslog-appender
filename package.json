@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-     "test": "node node_modules/eslint/bin/eslint ."
+    "test": "node node_modules/eslint/bin/eslint .",
+    "test:unit": "bash -c 'scripts/runUnitTests.sh'"
   },
   "author": "Herman Singh Badwal <hermanba@ca.ibm.com>",
   "license": "IBM",
@@ -14,6 +15,8 @@
     "tls": "0.0.1"
   },
   "devDependencies": {
-    "eslint": "^2.10.0"
+    "eslint": "^2.10.0",
+    "tap-spec": "^4.1.1",
+    "tape": "^4.5.1"
   }
 }
