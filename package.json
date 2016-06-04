@@ -1,6 +1,6 @@
 {
-  "name": "@org-ids/log4js-syslog-appender",
-  "version": "0.1.8",
+  "name": "log4js-syslog-appender",
+  "version": "0.1.9",
   "description": "",
   "main": "index.js",
   "scripts": {
