@@ -1,6 +1,6 @@
 [![Build Status](https://travis.innovate.ibm.com/org-ids/node-log4js-syslog-appender.svg?token=sqTXDga2eqkhEWnz8poq&branch=master)](https://travis.innovate.ibm.com/org-ids/node-log4js-syslog-appender)
 
-# node-log4js-syslog-appender 
+# node-log4js-syslog-appender
 Syslog appender for node-log4js.
 
 ## Pre-requisites
@@ -21,7 +21,7 @@ specifying which loggers' log messages to send via the comma separated list env 
 - *For local deveopment only*: Add the following appender to your log4js.json file (note this is the minimal valid configuration):
 ```
 {
-        "type": "node-log4js-syslog-appender",
+        "type": "log4js-syslog-appender",
         "options": {
                 "host": "syslog.prd.ccs.ibmcloud.com",
                 "port": "6514",
@@ -35,7 +35,7 @@ specifying which loggers' log messages to send via the comma separated list env 
 - For production environment (and in source), only push the following in the log4js.json file:
 ```
 {
-        "type": "node-log4js-syslog-appender",
+        "type": "log4js-syslog-appender",
         "options": {}
 }
 ```
@@ -48,7 +48,7 @@ export log4js_syslog_appender_port=6514
 export log4js_syslog_appender_product=otc-api
 
 # There are two ways of setting the certs, either through a path (meaning
-# you have to check it into a source control - kind of a nono or 
+# you have to check it into a source control - kind of a nono or
 # by setting the base64 encoded values as env vars - the right way).
 
 # Option 1: Checking them into source control, then specifying the path to them
@@ -56,7 +56,7 @@ export log4js_syslog_appender_certificatePath=keys/IDS-crt.pem
 export log4js_syslog_appender_privateKeyPath=keys/IDS-key.pem
 export log4js_syslog_appender_caPath=keys/ca.pem
 
-# Option 2: A more secure way is actually setting the cert itself as env vars. 
+# Option 2: A more secure way is actually setting the cert itself as env vars.
 # To shorten the length, we use the base64 encoded values of the certs.
 export log4js_syslog_appender_certificateBase64=alkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
 export log4js_syslog_appender_privateKeyBase64=4545FDSFalkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
