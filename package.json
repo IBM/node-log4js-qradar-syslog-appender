@@ -5,10 +5,10 @@
   "main": "index.js",
   "scripts": {
     "test": "node node_modules/eslint/bin/eslint .",
-    "test:unit": "bash -c 'scripts/runUnitTests.sh'"
+    "test:unit": "bash -c '(chmod u+x scripts/runUnitTests.sh; scripts/runUnitTests.sh)'"
   },
   "author": "Herman Singh Badwal <hermanba@ca.ibm.com>",
-  "license": "IBM",
+  "license": "MIT",
   "dependencies": {
     "fs": "0.0.2",
     "log4js": "^0.6.33",
