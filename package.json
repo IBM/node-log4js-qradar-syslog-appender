@@ -1,13 +1,13 @@
 {
-  "name": "log4js-syslog-appender",
-  "version": "0.2.0",
+  "name": "log4js-qradar-syslog-appender",
+  "version": "0.2.2",
   "description": "",
   "main": "index.js",
   "scripts": {
     "test": "node node_modules/eslint/bin/eslint .",
     "test:unit": "bash -c '(chmod u+x scripts/runUnitTests.sh; scripts/runUnitTests.sh)'"
   },
-  "author": "Herman Singh Badwal <hermanba@ca.ibm.com>",
+  "author": "Herman Singh Badwal <ssjherman@gmail.com>",
   "license": "MIT",
   "dependencies": {
     "fs": "0.0.2",
