@@ -1,6 +1,6 @@
 # IBM Bluemix DevOps Services - node-log4js-syslog-appender
 
-This module is a syslog appender for node-log4js.
+This module is a qradar syslog appender for node-log4js.
 
 Link to [Bluemix Public IDS Experiment](https://new-console.ng.bluemix.net/dashboard/devops).
 
@@ -19,7 +19,7 @@ Note that all contributions *must* be submitted through pull requests and have t
 Signed-off-by: John Doe <john.doe@example.org>
 
 # Build Status
-[[Build Status] (https://travis-ci.org/IBM/node-log4js-syslog-appender)](https://travis-ci.org/IBM/node-log4js-syslog-appender)
+[[Build Status] (https://travis-ci.org/IBM/node-log4js-qradar-syslog-appender)](https://travis-ci.org/IBM/node-log4js-qradar-syslog-appender)
 
 
 # Usage
@@ -30,19 +30,17 @@ Signed-off-by: John Doe <john.doe@example.org>
 
 
 ## To upgrade
-- `npm uninstall node-log4js-syslog-appender --save`
-- `npm install git+https://github.com/IBM/node-log4js-syslog-appender#<latestTag> --save`
-- You can find the latestTag here: https://github.ibm.com/org-ids/node-log4js-syslog-appender/releases , something like "v0.1.4"
+- `npm i log4js-qradar-syslog-appender@latest --save`
 
 ## To install
-`npm install git+https://github.com/IBM/node-log4js-syslog-appender#<latestTag> --save`
+`npm i log4js-qradar-syslog-appender --save`
 - Set the following environment variable to true in order to enable the appender: `export log4js_syslog_appender_enabled=true`
 - The default behavior is all log messages will be send to syslog, you can override this behavior by
 specifying which loggers' log messages to send via the comma separated list env var `export log4js_syslog_appender_whitelist=audit-logs`
 - *For local deveopment only*: Add the following appender to your log4js.json file (note this is the minimal valid configuration):
 ```
 {
-        "type": "log4js-syslog-appender",
+        "type": "log4js-qradar-syslog-appender",
         "options": {
                 "host": "syslog.prd.ccs.ibmcloud.com",
                 "port": "6514",
@@ -56,7 +54,7 @@ specifying which loggers' log messages to send via the comma separated list env 
 - For production environment (and in source), only push the following in the log4js.json file:
 ```
 {
-        "type": "log4js-syslog-appender",
+        "type": "log4js-qradar-syslog-appender",
         "options": {}
 }
 ```
