@@ -65,6 +65,21 @@ export log4js_syslog_appender_whitelist=audit-logs,audit-logs-v2
 export log4js_syslog_appender_host=syslog.prd.ccs.ibmcloud.com
 export log4js_syslog_appender_port=6514
 export log4js_syslog_appender_product=otc-api
+```
+
+##Use with default syslog
+
+You can use this appender with any default UDP syslog in unencrypted mode.  The environment setup is very similar to above:
+
+```
+export log4js_syslog_appender_enabled=true
+export log4js_syslog_appender_useUdpSyslog=true
+export log4js_syslog_appender_whitelist=audit-logs,audit-logs-v2
+export log4js_syslog_appender_host=localhost
+export log4js_syslog_appender_port=514
+export log4js_syslog_appender_product=otc-api
+```
+
 
 # Setting Certificates
 There are two ways of setting the certs, either through a path (meaning you have to check it into a source control - kind of a nono or by setting the base64 encoded values as env vars - the right way).
