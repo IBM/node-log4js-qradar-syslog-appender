@@ -6,6 +6,7 @@
  * Use, duplication or disclosure restricted by GSA ADP Schedule
  * Contract with IBM Corp.
  */
+/*eslint-env node */
 'use strict';
 
 var log4js = require('log4js'),
@@ -14,7 +15,8 @@ var log4js = require('log4js'),
     tls = require('tls'),
     fs = require('fs'),
     util = require('util'),
-    os = require('os');
+    os = require('os'),
+    dgram = require('dgram');
 
 module.exports = {
     appender: appender,
@@ -80,6 +82,28 @@ function loggingFunction(options, log, tries) {
 
     if (!syslogConnectionSingleton.connection && !syslogConnectionSingleton.connecting) {
         syslogConnectionSingleton.connecting = true;
+        if (options.useUdpSyslog) {
+        	var client = dgram.createSocket('udp4');
+        	syslogConnectionSingleton.connection = {
+        		write: function (msg) {
+        			client.send(msg, 0, msg.length, options.port, options.host, function (err) {
+        				if (err && err !== 0) {
+        					cleanupConnection(err, 'error');
+        					retryLogic(loggingFunction.bind(this, options, log), tries);
+        				}
+        			});
+        		},
+        		destroy: function() {
+        			client.close();
+        		}
+        	};
+        	client.on('error', function(err) {
+        		cleanupConnection(err, 'error');
+        		retryLogic(loggingFunction.bind(this, options, log), tries);
+        	});
+        	syslogConnectionSingleton.connecting = false;
+        	logMessage(log, options, tries);
+        } else {
 
         // set up mutual auth.
         readBase64StringOrFile(options.certificateBase64, options.certificatePath, function(err, certificate) {
@@ -134,6 +158,7 @@ function loggingFunction(options, log, tries) {
 
             });
         });
+    	}
     } else {
         logMessage(log, options, tries);
     }
@@ -226,6 +251,7 @@ function configure(config) {
         var options = {
             host: process.env.log4js_syslog_appender_host || config.options && config.options.host,
             port: process.env.log4js_syslog_appender_port || config.options && config.options.port,
+            useUdpSyslog: process.env.log4js_syslog_appender_useUdpSyslog || config.options && config.options.useUdpSyslog || false,
             certificatePath: process.env.log4js_syslog_appender_certificatePath || config.options && config.options.certificatePath,
             privateKeyPath: process.env.log4js_syslog_appender_privateKeyPath || config.options && config.options.privateKeyPath,
             passphrase: process.env.log4js_syslog_appender_passphrase || config.options && config.options.passphrase || '',
@@ -241,7 +267,7 @@ function configure(config) {
             product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version || '',
             rejectUnauthorized: process.env.log4js_syslog_appender_rejectUnauthorized || config.options && config.options.rejectUnauthorized || true
         };
-
+        
         // This option is a boolean, but if a string is passed in, we need to
         // coerce ourselves.
         if (options.rejectUnauthorized === "false") {
@@ -272,6 +298,7 @@ function verifyOptions(options) {
         }
     });
 
+	
     [ 
         'log4js_syslog_appender_certificate',
         'log4js_syslog_appender_privateKey',
@@ -279,16 +306,25 @@ function verifyOptions(options) {
     ].forEach(function (option) {
         var key = option.split('_').pop();
 
-        if (!options[key + "Path"] && !options[key + "Base64"]) {
+        if (!options[key + "Path"] && !options[key + "Base64"] && !options.useUdpSyslog) {
             util.log('QRadar node-log4js-syslog-appender: Either ' + key + 'Path or ' + key + 'Base64 are required options. It is settable with the ' + option + ' environment variable.');
             valid = false; // array.forEach is blocking
         }
 
         // Deprecated warnings.
         if (options[key + "Path"]) {
-            util.log('QRadar node-log4js-syslog-appender: WARNING env var ' +
-                key + 'Path is now deprecated and will be removed in a future' +
-                ' relase. Please switch to ' + key + 'Base64 instead.');
+        	if (options.useUdpSyslog) {
+        		util.log('QRadar node-log4js-syslog-appender: WARNING env var ' +
+	                key + 'Path will not be used for unencrypted syslog UDP/514.');
+    		} else {
+	            util.log('QRadar node-log4js-syslog-appender: WARNING env var ' +
+	                key + 'Path is now deprecated and will be removed in a future' +
+	                ' relase. Please switch to ' + key + 'Base64 instead.');
+            }
+        }
+        if (options[key + "Base64"] && options.useUdpSyslog) {
+    		util.log('QRadar node-log4js-syslog-appender: WARNING env var ' +
+                key + 'Base64 will not be used for unencrypted syslog UDP/514.');
         }
     })
 
