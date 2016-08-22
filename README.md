@@ -47,7 +47,8 @@ specifying which loggers' log messages to send via the comma separated list env 
                 "certificatePath": "keys/IDS-crt.pem",
                 "privateKeyPath": "keys/IDS-key.pem",
                 "caPath": "keys/ca.pem",
-                "product": "otc-api"
+                "product": "otc-api",
+                "url": "https://otc-api.ng.bluemix.net"
           }
 }
 ```
@@ -65,9 +66,10 @@ export log4js_syslog_appender_whitelist=audit-logs,audit-logs-v2
 export log4js_syslog_appender_host=syslog.prd.ccs.ibmcloud.com
 export log4js_syslog_appender_port=6514
 export log4js_syslog_appender_product=otc-api
+export log4js_syslog_appender_url=https://otc-api.ng.bluemix.net
 ```
 
-##Use with default syslog
+## Use with default syslog
 
 You can use this appender with any default UDP syslog in unencrypted mode.  The environment setup is very similar to above:
 
@@ -78,6 +80,7 @@ export log4js_syslog_appender_whitelist=audit-logs,audit-logs-v2
 export log4js_syslog_appender_host=localhost
 export log4js_syslog_appender_port=514
 export log4js_syslog_appender_product=otc-api
+export log4js_syslog_appender_url=https://otc-api.ng.bluemix.net
 ```
 
 
