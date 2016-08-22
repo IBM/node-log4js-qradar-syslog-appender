@@ -230,7 +230,7 @@ function formatMessage(message, levelStr, options) {
         16*8+levelToSeverity(levelStr), // hardcoded facility of local0 which translates to 16 according to RFC. TODO: use passed in facility.
         1,
         new Date().toJSON(),
-        process.env.url || os.hostname(),
+        options.url,
         options.product,
         process.pid,
         '-', 
@@ -265,8 +265,16 @@ function configure(config) {
             vendor: process.env.log4js_syslog_appender_vendor || config.options && config.options.vendor || '',
             product: process.env.log4js_syslog_appender_product || config.options && config.options.product,
             product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version || '',
-            rejectUnauthorized: process.env.log4js_syslog_appender_rejectUnauthorized || config.options && config.options.rejectUnauthorized || true
+            rejectUnauthorized: process.env.log4js_syslog_appender_rejectUnauthorized || config.options && config.options.rejectUnauthorized || true,
+            url: process.env.log4js_syslog_appender_url || config.options && config.options.url || process.env.url || os.hostname() || ''
         };
+
+        var stripOut = ['https://', 'http://'];
+        for (var i = 0; i < stripOut.length; i++) {
+            if (options.url.startsWith(stripOut[i])) {
+                options.url = options.url.slice(stripOut[i].length);
+            }
+        }
         
         // This option is a boolean, but if a string is passed in, we need to
         // coerce ourselves.
