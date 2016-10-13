@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/IBM/node-log4js-qradar-syslog-appender.svg?branch=master)](https://travis-ci.org/IBM/node-log4js-qradar-syslog-appender)
+
 # IBM Bluemix DevOps Services - node-log4js-syslog-appender
 
 This module is a qradar syslog appender for node-log4js.
@@ -17,10 +19,6 @@ Contributions are welcome via Pull Requests. Please submit your very first Pull 
 Note that all contributions *must* be submitted through pull requests and have to pass the Travis Status Checks in order for code to be merged into master.
 
 Signed-off-by: John Doe <john.doe@example.org>
-
-# Build Status
-[[Build Status] (https://travis-ci.org/IBM/node-log4js-qradar-syslog-appender)](https://travis-ci.org/IBM/node-log4js-qradar-syslog-appender)
-
 
 # Usage
 
