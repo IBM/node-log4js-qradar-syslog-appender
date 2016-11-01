@@ -46,7 +46,7 @@ specifying which loggers' log messages to send via the comma separated list env 
                 "privateKeyPath": "keys/IDS-key.pem",
                 "caPath": "keys/ca.pem",
                 "product": "otc-api",
-                "url": "https://otc-api.ng.bluemix.net"
+                "url": "devops.ng.bluemix.net"
           }
 }
 ```
@@ -64,7 +64,7 @@ export log4js_syslog_appender_whitelist=audit-logs,audit-logs-v2
 export log4js_syslog_appender_host=syslog.prd.ccs.ibmcloud.com
 export log4js_syslog_appender_port=6514
 export log4js_syslog_appender_product=otc-api
-export log4js_syslog_appender_url=https://otc-api.ng.bluemix.net
+export log4js_syslog_appender_url=devops.ng.bluemix.net
 ```
 
 ## Use with default syslog
