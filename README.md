@@ -78,7 +78,7 @@ export log4js_syslog_appender_whitelist=audit-logs,audit-logs-v2
 export log4js_syslog_appender_host=localhost
 export log4js_syslog_appender_port=514
 export log4js_syslog_appender_product=otc-api
-export log4js_syslog_appender_url=https://otc-api.ng.bluemix.net
+export log4js_syslog_appender_url=devops.ng.bluemix.net
 ```
 
 
