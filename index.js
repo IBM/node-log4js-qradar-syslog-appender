@@ -20,7 +20,8 @@ var log4js = require('log4js'),
 
 module.exports = {
     appender: appender,
-    configure: configure
+    configure: configure,
+    shutdown: shutdown
 };
 
 function retryLogic(retryFunction, tries) {
@@ -73,6 +74,9 @@ function readBase64StringOrFile(base64, file, callback) {
 };
 
 function loggingFunction(options, log, tries) {
+    if (syslogConnectionSingleton.shutdown) {
+        return;
+    }
     // we are in circuit break mode. There is something wrong with the qradar connection. We won't try to
     // send any log messages to qradar until the circuit is connected again.
     if (syslogConnectionSingleton.circuitBreak) {
@@ -286,6 +290,7 @@ function configure(config) {
             return function() {};
         }
         util.log('Syslog appender is enabled');
+        syslogConnectionSingleton.shutdown = false;
         return appender(options);
     }
 };
@@ -338,3 +343,9 @@ function verifyOptions(options) {
 
     return valid;
 };
+
+function shutdown(callback) {
+    syslogConnectionSingleton.shutdown = true;
+    cleanupConnection('log4js is shutting down', 'shutting down');
+    callback();
+}
