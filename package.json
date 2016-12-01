@@ -1,6 +1,6 @@
 {
   "name": "log4js-qradar-syslog-appender",
-  "version": "0.3.3",
+  "version": "0.4.3",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,7 @@
   "author": "Herman Singh Badwal <ssjherman@gmail.com>",
   "license": "MIT",
   "dependencies": {
+    "async": "^2.1.4",
     "log4js": "^0.6.33",
     "tls": "0.0.1"
   },
