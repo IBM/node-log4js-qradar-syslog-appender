@@ -16,7 +16,8 @@ var log4js = require('log4js'),
     fs = require('fs'),
     util = require('util'),
     os = require('os'),
-    dgram = require('dgram');
+    dgram = require('dgram'),
+    net = require('net')
 
 module.exports = {
     appender: appender,
@@ -161,13 +162,13 @@ function configureMutualAuth(options, callback) {
 
                 options.caCert = caCert;
 
-                callback(options);
+                callback(options, true);
             });
         });
     });
 };
 
-function attemptTcpConnection(log, tries, options) {
+function attemptTcpConnection(log, tries, options, mutualAuth) {
     var tlsOptions = {
         cert: options.certificate,
         key: options.key,
@@ -184,7 +185,16 @@ function attemptTcpConnection(log, tries, options) {
         rejectUnauthorized: options.rejectUnauthorized
     };
 
-    syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log, options, tries));
+    var tcpLib;
+    
+    if (mutualAuth) {
+        tcpLib = tls;
+    }
+    else {
+        tcpLib = net;
+    }
+
+    syslogConnectionSingleton.connection = tcpLib.connect(tlsOptions, connected.bind(this, log, options, tries));
 
     syslogConnectionSingleton.connection.setEncoding('utf8');
     syslogConnectionSingleton.connection.on('error', function(err) {
