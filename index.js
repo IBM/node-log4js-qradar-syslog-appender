@@ -86,87 +86,121 @@ function loggingFunction(options, log, tries) {
 
     if (!syslogConnectionSingleton.connection && !syslogConnectionSingleton.connecting) {
         syslogConnectionSingleton.connecting = true;
+        // udp
         if (options.useUdpSyslog) {
-        	var client = dgram.createSocket('udp4');
-        	syslogConnectionSingleton.connection = {
-        		write: function (msg) {
-        			client.send(msg, 0, msg.length, options.port, options.host, function (err) {
-        				if (err && err !== 0) {
-        					cleanupConnection(err, 'error');
-        					retryLogic(loggingFunction.bind(this, options, log), tries);
-        				}
-        			});
-        		},
-        		destroy: function() {
-        			client.close();
-        		}
-        	};
-        	client.on('error', function(err) {
-        		cleanupConnection(err, 'error');
-        		retryLogic(loggingFunction.bind(this, options, log), tries);
-        	});
-        	syslogConnectionSingleton.connecting = false;
-        	logMessage(log, options, tries);
-        } else {
-
-        // set up mutual auth.
-        readBase64StringOrFile(options.certificateBase64, options.certificatePath, function(err, certificate) {
-            if (err) {
-                console.error('Error while loading certificate from path: ' + options.certificatePath + ' Error: ' + JSON.stringify(err, null, 2));
-                return;
+            attemptUdpConnection(options, log, tries);
+            
+        } 
+        else { // tcp
+            var boundFunction = attemptTcpConnection.bind(this, log, tries);
+            if (mutualAuthConfigured(options)) {
+                configureMutualAuth(options, boundFunction);
             }
-
-            readBase64StringOrFile(options.privateKeyBase64, options.privateKeyPath, function(err, key) {
-                if (err) {
-                    console.error('Error while loading private key from path: ' + options.privateKeyPath + ' Error: ' + JSON.stringify(err, null, 2));
-                    return;
-                }
-
-                readBase64StringOrFile(options.caBase64, options.caPath, function(err, caCert) {
-                    if (err) {
-                        console.error('Error while loading ca key from path: ' + options.caPath + ' Error: ' + JSON.stringify(err, null, 2));
-                        return;
-                    }
-                        var tlsOptions = {
-                            cert: certificate,
-                            key: key,
-                            ca: caCert,
-                            host: options.host,
-                            port: options.port,
-                            passphrase: options.passphrase,
-                            facility: options.facility,
-                            tag: options.tag,
-                            leef: options.leef,
-                            vendor: options.vendor,
-                            product: options.product,
-                            product_version: options.product_version,
-                            rejectUnauthorized: options.rejectUnauthorized
-                        };
-
-                        syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log, options, tries));
-
-                        syslogConnectionSingleton.connection.setEncoding('utf8');
-                        syslogConnectionSingleton.connection.on('error', function(err) {
-                            cleanupConnection(err, 'error');
-                            retryLogic(loggingFunction.bind(this, options, log), tries);
-                        });
-                        syslogConnectionSingleton.connection.on('close', function(err) {
-                            cleanupConnection(err, 'closed');
-                            retryLogic(loggingFunction.bind(this, options, log), tries);
-                        });
-                        syslogConnectionSingleton.connection.on('end', function(err) {
-                            cleanupConnection(err, 'ended');
-                            retryLogic(loggingFunction.bind(this, options, log), tries);
-                        });
-                    });
-
-            });
-        });
-    	}
-    } else {
+            else {
+                boundFunction(options);
+            }
+        }
+    }
+    else {
         logMessage(log, options, tries);
     }
 };
+
+function attemptUdpConnection(options, log, tries) {
+    var client = dgram.createSocket('udp4');
+    syslogConnectionSingleton.connection = {
+        write: function (msg) {
+            client.send(msg, 0, msg.length, options.port, options.host, function (err) {
+                if (err && err !== 0) {
+                    cleanupConnection(err, 'error');
+                    retryLogic(loggingFunction.bind(this, options, log), tries);
+                }
+            });
+        },
+        destroy: function() {
+            client.close();
+        }
+    };
+    client.on('error', function(err) {
+        cleanupConnection(err, 'error');
+        retryLogic(loggingFunction.bind(this, options, log), tries);
+    });
+    syslogConnectionSingleton.connecting = false;
+    logMessage(log, options, tries);
+}
+
+function mutualAuthConfigured(options) {
+    return ( (options.certificateBase64 || options.certificatePath) &&
+        (options.privateKeyBase64 || options.privateKeyPath) &&
+        (options.caBase64 || options.caPath) );
+};
+
+// set up mutual auth.
+function configureMutualAuth(options, callback) {
+
+    readBase64StringOrFile(options.certificateBase64, options.certificatePath, function(err, certificate) {
+        if (err) {
+            console.error('Error while loading certificate from path: ' + options.certificatePath + ' Error: ' + JSON.stringify(err, null, 2));
+            return;
+        }
+
+        options.certificate = certificate;
+
+        readBase64StringOrFile(options.privateKeyBase64, options.privateKeyPath, function(err, key) {
+            if (err) {
+                console.error('Error while loading private key from path: ' + options.privateKeyPath + ' Error: ' + JSON.stringify(err, null, 2));
+                return;
+            }
+
+            options.key = key;
+
+            readBase64StringOrFile(options.caBase64, options.caPath, function(err, caCert) {
+                if (err) {
+                    console.error('Error while loading ca key from path: ' + options.caPath + ' Error: ' + JSON.stringify(err, null, 2));
+                    return;
+                }
+
+                options.caCert = caCert;
+
+                callback(options);
+            });
+        });
+    });
+};
+
+function attemptTcpConnection(log, tries, options) {
+    var tlsOptions = {
+        cert: options.certificate,
+        key: options.key,
+        ca: options.caCert,
+        host: options.host,
+        port: options.port,
+        passphrase: options.passphrase,
+        facility: options.facility,
+        tag: options.tag,
+        leef: options.leef,
+        vendor: options.vendor,
+        product: options.product,
+        product_version: options.product_version,
+        rejectUnauthorized: options.rejectUnauthorized
+    };
+
+    syslogConnectionSingleton.connection = tls.connect(tlsOptions, connected.bind(this, log, options, tries));
+
+    syslogConnectionSingleton.connection.setEncoding('utf8');
+    syslogConnectionSingleton.connection.on('error', function(err) {
+        cleanupConnection(err, 'error');
+        retryLogic(loggingFunction.bind(this, options, log), tries);
+    });
+    syslogConnectionSingleton.connection.on('close', function(err) {
+        cleanupConnection(err, 'closed');
+        retryLogic(loggingFunction.bind(this, options, log), tries);
+    });
+    syslogConnectionSingleton.connection.on('end', function(err) {
+        cleanupConnection(err, 'ended');
+        retryLogic(loggingFunction.bind(this, options, log), tries);
+    });
+}
 
 function cleanupConnection(err, type) {
     console.warn('QRadar Syslog appender: connection ' + type + '. Error: ' + JSON.stringify(err, null, 2));
@@ -312,7 +346,7 @@ function verifyOptions(options) {
         }
     });
 
-	
+    
     [ 
         'log4js_syslog_appender_certificate',
         'log4js_syslog_appender_privateKey',
@@ -329,17 +363,17 @@ function verifyOptions(options) {
 
         // Deprecated warnings.
         if (options[key + "Path"]) {
-        	if (options.useUdpSyslog) {
-        		internalLog('WARNING env var ' + key +
+            if (options.useUdpSyslog) {
+                internalLog('WARNING env var ' + key +
                     'Path will not be used for unencrypted syslog UDP/514.');
-    		} else {
-	            internalLog('WARNING env var ' + key + 
+            } else {
+                internalLog('WARNING env var ' + key + 
                     'Path is now deprecated and will be removed in a future' + 
                     ' release. Please switch to ' + key + 'Base64 instead.');
             }
         }
         if (options[key + "Base64"] && options.useUdpSyslog) {
-    		internalLog('WARNING env var ' + key + 
+            internalLog('WARNING env var ' + key + 
                 'Base64 will not be used for unencrypted syslog UDP/514.');
         }
     })
