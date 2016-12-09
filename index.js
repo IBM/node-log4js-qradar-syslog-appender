@@ -325,7 +325,6 @@ function verifyOptions(options) {
                 'Path or ' + key +
                 'Base64 are required options. It is settable with the ' +
                 option + ' environment variable.');
-            valid = false; // array.forEach is blocking
         }
 
         // Deprecated warnings.
