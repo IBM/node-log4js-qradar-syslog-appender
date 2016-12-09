@@ -42,7 +42,7 @@ function retryLogic(retryFunction, tries) {
 
     if (tries > syslogConnectionSingleton.MAX_TRIES) {
         syslogConnectionSingleton.circuitBreak = true;
-        util.log('QRadar Syslog Appender: Tried sending a message ' + syslogConnectionSingleton.MAX_TRIES + 
+        internalLog('Tried sending a message ' + syslogConnectionSingleton.MAX_TRIES + 
             ' times but the client was not connected. ' + 
             'Initiating circuit breaker protocol. ' + 
             'For the next ' + syslogConnectionSingleton.CIRCUIT_BREAK_MINS + 
@@ -60,7 +60,7 @@ function retryLogic(retryFunction, tries) {
 };
 
 function connectCircuit() {
-    util.log('QRadar Syslog Appender: Re-connecting the circuit. So far we have dropped ' + 
+    internalLog('Re-connecting the circuit. So far we have dropped ' + 
         syslogConnectionSingleton.droppedMessages + ' messages.');
     syslogConnectionSingleton.circuitBreak = false;
 };
@@ -289,7 +289,7 @@ function configure(config) {
         if (!verifyOptions(options)) {
             return function() {};
         }
-        util.log('Syslog appender is enabled');
+        internalLog('Syslog appender is enabled');
         syslogConnectionSingleton.shutdown = false;
         return appender(options);
     }
@@ -306,7 +306,8 @@ function verifyOptions(options) {
     requiredOptions.forEach(function(option) {
         var key = option.substring(option.lastIndexOf('_')+1);
         if (!options[key]) {
-            util.log('QRadar node-log4js-syslog-appender: ' + key + ' is a required option. It is settable with the ' + option + ' environment variable.');
+            internalLog(key + ' is a required option. It is settable with the ' +
+                option + ' environment variable.');
             valid = false; // array.forEach is blocking
         }
     });
@@ -320,24 +321,27 @@ function verifyOptions(options) {
         var key = option.split('_').pop();
 
         if (!options[key + "Path"] && !options[key + "Base64"] && !options.useUdpSyslog) {
-            util.log('QRadar node-log4js-syslog-appender: Either ' + key + 'Path or ' + key + 'Base64 are required options. It is settable with the ' + option + ' environment variable.');
+            internalLog('In order to enable ' + 'mutual auth, either ' + key +
+                'Path or ' + key +
+                'Base64 are required options. It is settable with the ' +
+                option + ' environment variable.');
             valid = false; // array.forEach is blocking
         }
 
         // Deprecated warnings.
         if (options[key + "Path"]) {
         	if (options.useUdpSyslog) {
-        		util.log('QRadar node-log4js-syslog-appender: WARNING env var ' +
-	                key + 'Path will not be used for unencrypted syslog UDP/514.');
+        		internalLog('WARNING env var ' + key +
+                    'Path will not be used for unencrypted syslog UDP/514.');
     		} else {
-	            util.log('QRadar node-log4js-syslog-appender: WARNING env var ' +
-	                key + 'Path is now deprecated and will be removed in a future' +
-	                ' relase. Please switch to ' + key + 'Base64 instead.');
+	            internalLog('WARNING env var ' + key + 
+                    'Path is now deprecated and will be removed in a future' + 
+                    ' release. Please switch to ' + key + 'Base64 instead.');
             }
         }
         if (options[key + "Base64"] && options.useUdpSyslog) {
-    		util.log('QRadar node-log4js-syslog-appender: WARNING env var ' +
-                key + 'Base64 will not be used for unencrypted syslog UDP/514.');
+    		internalLog('WARNING env var ' + key + 
+                'Base64 will not be used for unencrypted syslog UDP/514.');
         }
     })
 
@@ -348,4 +352,8 @@ function shutdown(callback) {
     syslogConnectionSingleton.shutdown = true;
     cleanupConnection('log4js is shutting down', 'shutting down');
     callback();
+}
+
+function internalLog(msg) {
+    util.log('QRadar node-log4js-syslog-appender: ' + msg);
 }
