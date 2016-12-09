@@ -4,5 +4,6 @@ node_js:
 env:
   - TESTCOMMAND=test
   - TESTCOMMAND=test:unit
+  - TESTCOMMAND=test:system
 script:
   - npm run $TESTCOMMAND 

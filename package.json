@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "node node_modules/eslint/bin/eslint .",
-    "test:unit": "bash -c '(chmod u+x scripts/runUnitTests.sh; scripts/runUnitTests.sh)'"
+    "test:unit": "bash -c '(chmod u+x scripts/runUnitTests.sh; scripts/runUnitTests.sh)'",
+    "test:system": "bash -c '(chmod u+x scripts/runSystemTests.sh; scripts/runSystemTests.sh)'"
   },
   "author": "Herman Singh Badwal <ssjherman@gmail.com>",
   "license": "MIT",
