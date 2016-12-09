@@ -46,7 +46,7 @@ function retryLogic(retryFunction, tries) {
             ' times but the client was not connected. ' + 
             'Initiating circuit breaker protocol. ' + 
             'For the next ' + syslogConnectionSingleton.CIRCUIT_BREAK_MINS + 
-            ' mins, we will not attempt to send any messages to Logmet.');
+            ' mins, we will not attempt to send any messages to QRadar.');
         // circuit breaker logic - if detected bad connection, stop trying
         // to send log messages to qradar for syslogConnectionSingleton.CIRCUIT_BREAK_MINS.
 
@@ -89,8 +89,7 @@ function loggingFunction(options, log, tries) {
         // udp
         if (options.useUdpSyslog) {
             attemptUdpConnection(options, log, tries);
-            
-        } 
+        }
         else { // tcp
             var boundFunction = attemptTcpConnection.bind(this, log, tries);
             if (mutualAuthConfigured(options)) {
@@ -127,7 +126,7 @@ function attemptUdpConnection(options, log, tries) {
     });
     syslogConnectionSingleton.connecting = false;
     logMessage(log, options, tries);
-}
+};
 
 function mutualAuthConfigured(options) {
     return ( (options.certificateBase64 || options.certificatePath) &&
