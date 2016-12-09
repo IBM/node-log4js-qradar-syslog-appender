@@ -332,7 +332,12 @@ function configure(config) {
         if (!verifyOptions(options)) {
             return function() {};
         }
-        internalLog('Syslog appender is enabled');
+
+        // deep clone of options
+        var optionsClone = JSON.parse(JSON.stringify(options));
+        delete optionsClone.privateKeyBase64;
+        internalLog('Syslog appender is enabled with options: ' + JSON.stringify(optionsClone, null, 2));
+
         syslogConnectionSingleton.shutdown = false;
         return appender(options);
     }
