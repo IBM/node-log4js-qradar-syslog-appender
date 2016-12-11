@@ -42,15 +42,15 @@ test('Test message received by syslogd', function(t) {
         //     process.exit(0);
         // });
         process.exit(0);
-    }).listen(514, function(err) {
+    }).listen(1514, function(err) {
         if (err) {
             console.log('Error setting up syslog server: ' + JSON.stringify(err, null, 2));
         }
-        
+
         log4js.loadAppender('qradar-syslog-appender', syslogAppender);
         log4js.addAppender(log4js.appenders['qradar-syslog-appender']({
             host: 'localhost',
-            port: '514',
+            port: '1514',
             useUdpSyslog: true
         }));
         var logger = log4js.getLogger('');
