@@ -31,16 +31,17 @@ test('Test message received by syslogd', function(t) {
     }
     */
         console.log(JSON.stringify(info, null, 2));
-        t.ok(info);
+        t.ok(info, 'did the message get received?');
         t.end();
 
-        syslog.server.close(function(err, msg) {
-            if (err) {
-                console.log('err: ' + err);
-            }
-            console.log('exiting test');
-            process.exit(0);
-        });
+        // syslog.server.close(function(err, msg) {
+        //     if (err) {
+        //         console.log('err: ' + err);
+        //     }
+        //     console.log('exiting test');
+        //     process.exit(0);
+        // });
+        process.exit(0);
     }).listen(514, function(err) {
         log4js.loadAppender('qradar-syslog-appender', syslogAppender);
         log4js.addAppender(log4js.appenders['qradar-syslog-appender']({
