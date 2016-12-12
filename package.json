@@ -16,7 +16,6 @@
   },
   "devDependencies": {
     "eslint": "^2.10.0",
-    "syslogd": "^1.1.2",
     "tap-spec": "^4.1.1",
     "tape": "^4.5.1"
   }
