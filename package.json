@@ -11,8 +11,7 @@
   "author": "Herman Singh Badwal <ssjherman@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "log4js": "^0.6.33",
-    "tls": "0.0.1"
+    "log4js": "^0.6.33"
   },
   "devDependencies": {
     "eslint": "^2.10.0",
