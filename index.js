@@ -70,7 +70,7 @@ function readBase64StringOrFile(base64, file, callback) {
     if (base64) {
         callback(null, base64Decode(base64));
     } else {
-        fs.readFile(file, callback);
+        fs.readFile(file, {'encoding': 'utf8'}, callback);
     }
 };
 
