@@ -226,8 +226,9 @@ function appender(options) {
 
 function connected(message, options, tries) {
     syslogConnectionSingleton.connecting = false;
-    console.warn('QRadar Syslog appender: we have reconnected to QRadar. ' + 
-        syslogConnectionSingleton.droppedMessages + ' messages have been dropped.');
+    console.warn('QRadar Syslog appender: we have (re)connected to QRadar using a secure connection with ' +
+        (syslogConnectionSingleton.connection.authorized ? 'a valid ' : 'an INVALID ') +
+        'peer certificate. ' + syslogConnectionSingleton.droppedMessages + ' messages have been dropped.');
     logMessage(message, options, tries);
 };
 
@@ -239,8 +240,9 @@ function logMessage(log, options, tries) {
         return;
     }
 
-    // we got disconnected. Try to reconnect
-    if (!syslogConnectionSingleton.connection) {
+    // we got disconnected or are still connecting
+    // retry later when we are hopefully (re)connected
+    if (!syslogConnectionSingleton.connection || syslogConnectionSingleton.connecting) {
         return retryLogic(loggingFunction.bind(this, options, log), tries);
     }
 
