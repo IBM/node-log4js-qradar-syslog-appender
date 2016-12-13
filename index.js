@@ -300,7 +300,7 @@ function configure(config) {
         var options = {
             host: process.env.log4js_syslog_appender_host || config.options && config.options.host,
             port: process.env.log4js_syslog_appender_port || config.options && config.options.port,
-            useUdpSyslog: process.env.log4js_syslog_appender_useUdpSyslog || config.options && config.options.useUdpSyslog || false,
+            useUdpSyslog: process.env.log4js_syslog_appender_useUdpSyslog !== undefined ? process.env.log4js_syslog_appender_useUdpSyslog : config.options && config.options.useUdpSyslog,
             certificatePath: process.env.log4js_syslog_appender_certificatePath || config.options && config.options.certificatePath,
             privateKeyPath: process.env.log4js_syslog_appender_privateKeyPath || config.options && config.options.privateKeyPath,
             passphrase: process.env.log4js_syslog_appender_passphrase || config.options && config.options.passphrase || '',
@@ -314,7 +314,7 @@ function configure(config) {
             vendor: process.env.log4js_syslog_appender_vendor || config.options && config.options.vendor || '',
             product: process.env.log4js_syslog_appender_product || config.options && config.options.product,
             product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version || '',
-            rejectUnauthorized: process.env.log4js_syslog_appender_rejectUnauthorized || config.options && config.options.rejectUnauthorized || true,
+            rejectUnauthorized: process.env.log4js_syslog_appender_rejectUnauthorized !== undefined ? process.env.log4js_syslog_appender_rejectUnauthorized : config.options && config.options.rejectUnauthorized,
             url: process.env.log4js_syslog_appender_url || config.options && config.options.url || process.env.url || os.hostname() || ''
         };
 
@@ -325,11 +325,9 @@ function configure(config) {
             }
         }
         
-        // This option is a boolean, but if a string is passed in, we need to
-        // coerce ourselves.
-        if (options.rejectUnauthorized === "false") {
-            options.rejectUnauthorized = false;
-        }
+        // make sure boolean flags work properly with string inputs
+        options.useUdpSyslog = parseToBoolean(options.useUdpSyslog) // default is false
+        options.rejectUnauthorized = parseToBoolean(options.rejectUnauthorized, true) // default is true
 
         if (!verifyOptions(options)) {
             return function() {};
@@ -344,6 +342,15 @@ function configure(config) {
         return appender(options);
     }
 };
+
+function parseToBoolean(val, defaultValue) {
+    if (defaultValue) { // default is true
+        return val !== 'false' && val !== false;
+    }
+    else { // default is false
+        return val === 'true' || val === true;
+    }
+}
 
 function verifyOptions(options) {
     var requiredOptions = [
