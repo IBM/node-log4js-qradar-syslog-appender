@@ -45,8 +45,11 @@ test('Test message received by tcp server', function(t) {
 
         log4js.loadAppender('qradar-syslog-appender', syslogAppender);
         log4js.addAppender(log4js.appenders['qradar-syslog-appender']({
-            host: 'localhost',
-            port: '1514'
+            options: {
+                host: 'localhost',
+                port: '1514',
+                product: 'basic-tcp-test'
+            }
         }));
         var logger = log4js.getLogger('');
         logger.info('hai');

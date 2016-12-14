@@ -45,9 +45,12 @@ test('Test boolean useUdpSyslog=false uses Tcp', function(t) {
 
         log4js.loadAppender('log4js-qradar-syslog-appender', syslogAppender);
         log4js.addAppender(log4js.appenders['log4js-qradar-syslog-appender']({
-            host: 'localhost',
-            port: '1514',
-            useUdpSyslog: 'false'
+            options: {
+                host: 'localhost',
+                port: '1514',
+                useUdpSyslog: 'false',
+                product: 'basic-udp-syslog-string-test'
+            }
         }));
         var logger = log4js.getLogger('');
         logger.info('hai');
