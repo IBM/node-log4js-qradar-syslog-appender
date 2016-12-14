@@ -220,7 +220,51 @@ function cleanupConnection(err, type) {
     syslogConnectionSingleton.connecting = false;
 };
 
-function appender(options) {
+function appender(config) {
+
+    var options = {
+        host: process.env.log4js_syslog_appender_host || config.options && config.options.host,
+        port: process.env.log4js_syslog_appender_port || config.options && config.options.port,
+        useUdpSyslog: process.env.log4js_syslog_appender_useUdpSyslog !== undefined ? process.env.log4js_syslog_appender_useUdpSyslog : config.options && config.options.useUdpSyslog,
+        certificatePath: process.env.log4js_syslog_appender_certificatePath || config.options && config.options.certificatePath,
+        privateKeyPath: process.env.log4js_syslog_appender_privateKeyPath || config.options && config.options.privateKeyPath,
+        passphrase: process.env.log4js_syslog_appender_passphrase || config.options && config.options.passphrase || '',
+        caPath: process.env.log4js_syslog_appender_caPath || config.options && config.options.caPath,
+        certificateBase64: process.env.log4js_syslog_appender_certificateBase64 || config.options && config.options.certificateBase64,
+        privateKeyBase64: process.env.log4js_syslog_appender_privateKeyBase64 || config.options && config.options.privateKeyBase64,
+        caBase64: process.env.log4js_syslog_appender_caBase64 || config.options && config.options.caBase64,
+        facility: process.env.log4js_syslog_appender_facility || config.options && config.options.facility || '',
+        tag: process.env.log4js_syslog_appender_tag || config.options && config.options.tag || '',
+        leef: process.env.log4js_syslog_appender_leef || config.options && config.options.leef || '',
+        vendor: process.env.log4js_syslog_appender_vendor || config.options && config.options.vendor || '',
+        product: process.env.log4js_syslog_appender_product || config.options && config.options.product,
+        product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version || '',
+        rejectUnauthorized: process.env.log4js_syslog_appender_rejectUnauthorized !== undefined ? process.env.log4js_syslog_appender_rejectUnauthorized : config.options && config.options.rejectUnauthorized,
+        url: process.env.log4js_syslog_appender_url || config.options && config.options.url || process.env.url || os.hostname() || ''
+    };
+
+    var stripOut = ['https://', 'http://'];
+    for (var i = 0; i < stripOut.length; i++) {
+        if (options.url.startsWith(stripOut[i])) {
+            options.url = options.url.slice(stripOut[i].length);
+        }
+    }
+    
+    // make sure boolean flags work properly with string inputs
+    options.useUdpSyslog = parseToBoolean(options.useUdpSyslog); // default is false
+    options.rejectUnauthorized = parseToBoolean(options.rejectUnauthorized, true); // default is true
+
+    if (!verifyOptions(options)) {
+        return function() {};
+    }
+
+    // deep clone of options
+    var optionsClone = JSON.parse(JSON.stringify(options));
+    delete optionsClone.privateKeyBase64;
+    internalLog('Syslog appender is enabled with options: ' + JSON.stringify(optionsClone, null, 2));
+
+    syslogConnectionSingleton.shutdown = false;
+
     return loggingFunction.bind(this, options);
 };
 
@@ -297,49 +341,7 @@ function configure(config) {
             config.actualAppender = log4js.appenderMakers[config.appender.type](config.appender);
         }
 
-        var options = {
-            host: process.env.log4js_syslog_appender_host || config.options && config.options.host,
-            port: process.env.log4js_syslog_appender_port || config.options && config.options.port,
-            useUdpSyslog: process.env.log4js_syslog_appender_useUdpSyslog !== undefined ? process.env.log4js_syslog_appender_useUdpSyslog : config.options && config.options.useUdpSyslog,
-            certificatePath: process.env.log4js_syslog_appender_certificatePath || config.options && config.options.certificatePath,
-            privateKeyPath: process.env.log4js_syslog_appender_privateKeyPath || config.options && config.options.privateKeyPath,
-            passphrase: process.env.log4js_syslog_appender_passphrase || config.options && config.options.passphrase || '',
-            caPath: process.env.log4js_syslog_appender_caPath || config.options && config.options.caPath,
-            certificateBase64: process.env.log4js_syslog_appender_certificateBase64 || config.options && config.options.certificateBase64,
-            privateKeyBase64: process.env.log4js_syslog_appender_privateKeyBase64 || config.options && config.options.privateKeyBase64,
-            caBase64: process.env.log4js_syslog_appender_caBase64 || config.options && config.options.caBase64,
-            facility: process.env.log4js_syslog_appender_facility || config.options && config.options.facility || '',
-            tag: process.env.log4js_syslog_appender_tag || config.options && config.options.tag || '',
-            leef: process.env.log4js_syslog_appender_leef || config.options && config.options.leef || '',
-            vendor: process.env.log4js_syslog_appender_vendor || config.options && config.options.vendor || '',
-            product: process.env.log4js_syslog_appender_product || config.options && config.options.product,
-            product_version: process.env.log4js_syslog_appender_product_version || config.options && config.options.product_version || '',
-            rejectUnauthorized: process.env.log4js_syslog_appender_rejectUnauthorized !== undefined ? process.env.log4js_syslog_appender_rejectUnauthorized : config.options && config.options.rejectUnauthorized,
-            url: process.env.log4js_syslog_appender_url || config.options && config.options.url || process.env.url || os.hostname() || ''
-        };
-
-        var stripOut = ['https://', 'http://'];
-        for (var i = 0; i < stripOut.length; i++) {
-            if (options.url.startsWith(stripOut[i])) {
-                options.url = options.url.slice(stripOut[i].length);
-            }
-        }
-        
-        // make sure boolean flags work properly with string inputs
-        options.useUdpSyslog = parseToBoolean(options.useUdpSyslog) // default is false
-        options.rejectUnauthorized = parseToBoolean(options.rejectUnauthorized, true) // default is true
-
-        if (!verifyOptions(options)) {
-            return function() {};
-        }
-
-        // deep clone of options
-        var optionsClone = JSON.parse(JSON.stringify(options));
-        delete optionsClone.privateKeyBase64;
-        internalLog('Syslog appender is enabled with options: ' + JSON.stringify(optionsClone, null, 2));
-
-        syslogConnectionSingleton.shutdown = false;
-        return appender(options);
+        return appender(config);
     }
 };
 
