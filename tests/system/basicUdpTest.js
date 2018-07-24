@@ -10,7 +10,6 @@
 
 var test = require('tape'),
     log4js = require('log4js'),
-    syslogAppender = require('../../'),
     dgram = require('dgram');
 
 test('Test message received by udp server', function(t) {
@@ -41,15 +40,20 @@ test('Test message received by udp server', function(t) {
             throw err;
         }
 
-        log4js.loadAppender('qradar-syslog-appender', syslogAppender);
-        log4js.addAppender(log4js.appenders['qradar-syslog-appender']({
-            options: {
-                host: 'localhost',
-                port: '1514',
-                useUdpSyslog: true,
-                product: 'basic-udp-test'
-            }
-        }));
+        log4js.configure({ 
+            appenders: {
+                qradar: {
+                    type: 'log4js-qradar-syslog-appender',
+                    options: {
+                        host: 'localhost',
+                        port: '1514',
+                        useUdpSyslog: true,
+                        product: 'basic-udp-test'
+                    }
+                }
+            },
+            categories: { default: { appenders: ['qradar'], level: 'debug' } }
+        });
         var logger = log4js.getLogger('');
         logger.info('hai');
 

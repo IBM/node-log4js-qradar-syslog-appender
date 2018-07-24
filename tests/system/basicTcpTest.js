@@ -10,7 +10,6 @@
 
 var test = require('tape'),
     log4js = require('log4js'),
-    syslogAppender = require('../../'),
     net = require('net');
 
 test('Test message received by tcp server', function(t) {
@@ -43,14 +42,19 @@ test('Test message received by tcp server', function(t) {
         }
         console.log('server bound on port 1514');
 
-        log4js.loadAppender('qradar-syslog-appender', syslogAppender);
-        log4js.addAppender(log4js.appenders['qradar-syslog-appender']({
-            options: {
-                host: 'localhost',
-                port: '1514',
-                product: 'basic-tcp-test'
-            }
-        }));
+        log4js.configure({ 
+            appenders: {
+                qradar: {
+                    type: 'log4js-qradar-syslog-appender',
+                    options: {
+                        host: 'localhost',
+                        port: '1514',
+                        product: 'basic-tcp-test'
+                    }
+                }
+            },
+            categories: { default: { appenders: ['qradar'], level: 'debug' } }
+        });
         var logger = log4js.getLogger('');
         logger.info('hai');
     });
