@@ -1,6 +1,6 @@
 /**
  * Licensed Materials - Property of IBM
- * (c) Copyright IBM Corporation 2016. All Rights Reserved.
+ * (c) Copyright IBM Corporation 2016, 2018. All Rights Reserved.
  *
  * Note to U.S. Government Users Restricted Rights:
  * Use, duplication or disclosure restricted by GSA ADP Schedule
@@ -9,8 +9,7 @@
 /*eslint-env node */
 'use strict';
 
-var log4js = require('log4js'),
-    syslogConnectionSingleton = require('./syslog-connection-singleton'),
+var syslogConnectionSingleton = require('./syslog-connection-singleton'),
     base64Decode = require('./base64-decode'),
     tls = require('tls'),
     fs = require('fs'),
@@ -336,11 +335,6 @@ function configure(config) {
     if (process.env.log4js_syslog_appender_enabled !== 'true') {
         return function() {};
     } else {
-        if (config.appender) {
-            log4js.loadAppender(config.appender.type);
-            config.actualAppender = log4js.appenderMakers[config.appender.type](config.appender);
-        }
-
         return appender(config);
     }
 };
