@@ -23,8 +23,8 @@ Signed-off-by: John Doe <john.doe@example.org>
 # Usage
 
 ## Pre-requisites
-- Use https://github.com/nomiddlename/log4js-node for logging
-- You must call `log4js.configure('./path/to/log4js.json')` somewhere in your application (as this will cause this appender to initialize)
+You must be using [log4js-node](https://github.com/nomiddlename/log4js-node) 3.x or 4.x, and must call `log4js.configure('/path/to/log4js.json')`
+somewhere in your code.
 
 
 ## To upgrade

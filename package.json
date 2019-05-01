@@ -1,6 +1,6 @@
 {
   "name": "log4js-qradar-syslog-appender",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "",
   "main": "index.js",
   "scripts": {
@@ -11,13 +11,12 @@
   "author": "Herman Singh Badwal <ssjherman@gmail.com>",
   "license": "MIT",
   "peerDependencies": {
-    "log4js": "3"
+    "log4js": ">= 3 < 5"
   },
   "dependencies": {},
   "devDependencies": {
     "eslint": "^2.10.0",
     "log4js-qradar-syslog-appender": "0.4.0",
-    "log4js": "3",
     "tap-spec": "^4.1.1",
     "tape": "^4.5.1"
   }
