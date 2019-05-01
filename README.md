@@ -100,3 +100,4 @@ export log4js_syslog_appender_caBase64=ee3rr435F43alkjsdfkalsdjfklasdjflkasjdlfk
 export log4js_syslog_appender_rejectUnauthorized=false
 ```
 - Note the certs you need are all attached to the work item here: https://hub.jazz.net/ccm09/resource/itemName/com.ibm.team.workitem.WorkItem/55754
+ 
