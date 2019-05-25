@@ -4,7 +4,7 @@
 
 This module is a qradar syslog appender for node-log4js.
 
-Link to [Bluemix Public IDS Experiment](https://new-console.ng.bluemix.net/dashboard/devops).
+Link to [IBM Cloud DevOps Toolchains](https://cloud.ibm.com/devops).
 
 This is one of hundreds of [IBM Open Source projects at GitHub](http://ibm.github.io).
 
@@ -50,7 +50,7 @@ specifying which loggers' log messages to send via the comma separated list env 
           }
 }
 ```
-- For production environment (and in source), only push the following in the log4js.json file:
+- For production environments (and in source), only push the following in the log4js.json file:
 ```
 {
         "type": "log4js-qradar-syslog-appender",
@@ -83,20 +83,24 @@ export log4js_syslog_appender_url=devops.ng.bluemix.net
 
 
 # Setting Certificates
-There are two ways of setting the certs, either through a path (meaning you have to check it into a source control - kind of a nono or by setting the base64 encoded values as env vars - the right way).
+There are two ways of setting the certs, either through a path (meaning you have to check the certs into source control - so not ideal) or preferably, by setting the base64 encoded values as env vars.
 
 ## Option 1: Checking them into source control, then specifying the path to them
+```
 export log4js_syslog_appender_certificatePath=keys/IDS-crt.pem
 export log4js_syslog_appender_privateKeyPath=keys/IDS-key.pem
 export log4js_syslog_appender_caPath=keys/ca.pem
+```
 
 ## Option 2: A more secure way is actually setting the cert itself as env vars.
 Note: To shorten the length, we use the base64 encoded values of the certs.
-export log4js_syslog_appender_certificateBase64=zeaalkjsdfkalsdjfkrlasdjflkasjdlfkjsdfKLJFLSKDJF9f34
-export log4js_syslog_appender_privateKeyBase64=pop4545FDSFalkjsdfrkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
-export log4js_syslog_appender_caBase64=ee3rr435F43alkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34
+```
+export log4js_syslog_appender_certificateBase64=zeaalkjsdfkalsdjfkrlasdjflkasjdlfkjsdfKLJFLSKDJF9f34...
+export log4js_syslog_appender_privateKeyBase64=pop4545FDSFalkjsdfrkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34...
+export log4js_syslog_appender_caBase64=ee3rr435F43alkjsdfkalsdjfklasdjflkasjdlfkjsdfKLJFLSKDJF9f34...
+```
 
 ## Allow connections to servers with self signed certs.  By default, these connections will fail.
+```
 export log4js_syslog_appender_rejectUnauthorized=false
 ```
-- Note the certs you need are all attached to the work item here: https://hub.jazz.net/ccm09/resource/itemName/com.ibm.team.workitem.WorkItem/55754
