@@ -1,5 +1,22 @@
 # Change Log
 
+## [2.0.0](https://github.com/IBM/node-log4js-qradar-syslog-appender/tree/2.0.0) (2019-06-22)
+[Full Changelog](https://github.com/IBM/node-log4js-qradar-syslog-appender/compare/v1.0.0...2.0.0)
+
+**Merged pull requests:**
+
+- Dev dependency update [\#23](https://github.com/IBM/node-log4js-qradar-syslog-appender/pull/23) ([hermansb](https://github.com/hermansb))
+- Update README.md [\#22](https://github.com/IBM/node-log4js-qradar-syslog-appender/pull/22) ([hermansb](https://github.com/hermansb))
+- Allow log4js 4 peer dependency [\#20](https://github.com/IBM/node-log4js-qradar-syslog-appender/pull/20) ([jcayne-ibm](https://github.com/jcayne-ibm))
+
+## [v1.0.0](https://github.com/IBM/node-log4js-qradar-syslog-appender/tree/v1.0.0) (2018-07-24)
+[Full Changelog](https://github.com/IBM/node-log4js-qradar-syslog-appender/compare/v0.4.0...v1.0.0)
+
+**Merged pull requests:**
+
+- Update log4js dependency to v3 [\#19](https://github.com/IBM/node-log4js-qradar-syslog-appender/pull/19) ([simonkotwicz](https://github.com/simonkotwicz))
+- Use github-changelog-generator to auto-generate a CHANGELOG.md file [\#18](https://github.com/IBM/node-log4js-qradar-syslog-appender/pull/18) ([hermansb](https://github.com/hermansb))
+
 ## [v0.4.0](https://github.com/IBM/node-log4js-qradar-syslog-appender/tree/v0.4.0) (2016-12-14)
 [Full Changelog](https://github.com/IBM/node-log4js-qradar-syslog-appender/compare/v0.3.3...v0.4.0)
 
