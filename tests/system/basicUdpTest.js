@@ -39,6 +39,8 @@ test('Test message received by udp server', function(t) {
             throw err;
         }
 
+        process.env.log4js_syslog_appender_enabled = 'true';
+
         log4js.configure({ 
             appenders: {
                 qradar: {
