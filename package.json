@@ -2,7 +2,7 @@
   "name": "log4js-qradar-syslog-appender",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "log4js-qradar-syslog-appender.js",
   "scripts": {
     "test": "node node_modules/eslint/bin/eslint .",
     "test:unit": "bash -c '(chmod u+x scripts/runUnitTests.sh; scripts/runUnitTests.sh)'",
@@ -16,7 +16,6 @@
   "dependencies": {},
   "devDependencies": {
     "eslint": "^6.0.0",
-    "log4js-qradar-syslog-appender": "0.4.0",
     "log4js": "3",
     "tap-spec": "^4.1.1",
     "tape": "^4.5.1"
