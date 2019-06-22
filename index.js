@@ -57,13 +57,13 @@ function retryLogic(retryFunction, tries) {
     }
     setTimeout(retryFunction.bind(this, tries), 100);
     return;
-};
+}
 
 function connectCircuit() {
     internalLog('Re-connecting the circuit. So far we have dropped ' + 
         syslogConnectionSingleton.droppedMessages + ' messages.');
     syslogConnectionSingleton.circuitBreak = false;
-};
+}
 
 function readBase64StringOrFile(base64, file, callback) {
     if (base64) {
@@ -71,7 +71,7 @@ function readBase64StringOrFile(base64, file, callback) {
     } else {
         fs.readFile(file, {'encoding': 'utf8'}, callback);
     }
-};
+}
 
 function loggingFunction(options, log, tries) {
     if (syslogConnectionSingleton.shutdown) {
@@ -103,7 +103,7 @@ function loggingFunction(options, log, tries) {
     else {
         logMessage(log, options, tries);
     }
-};
+}
 
 function attemptUdpConnection(options, log, tries) {
     var client = dgram.createSocket('udp4');
@@ -126,13 +126,13 @@ function attemptUdpConnection(options, log, tries) {
     });
     syslogConnectionSingleton.connecting = false;
     logMessage(log, options, tries);
-};
+}
 
 function mutualAuthConfigured(options) {
     return ( (options.certificateBase64 || options.certificatePath) &&
         (options.privateKeyBase64 || options.privateKeyPath) &&
         (options.caBase64 || options.caPath) );
-};
+}
 
 // set up mutual auth.
 function configureMutualAuth(options, callback) {
@@ -165,7 +165,7 @@ function configureMutualAuth(options, callback) {
             });
         });
     });
-};
+}
 
 function attemptTcpConnection(log, tries, options, mutualAuth) {
     var tlsOptions = {
@@ -217,7 +217,7 @@ function cleanupConnection(err, type) {
         syslogConnectionSingleton.connection = null;
     }
     syslogConnectionSingleton.connecting = false;
-};
+}
 
 function appender(config) {
 
@@ -265,7 +265,7 @@ function appender(config) {
     syslogConnectionSingleton.shutdown = false;
 
     return loggingFunction.bind(this, options);
-};
+}
 
 function connected(message, options, tries) {
     syslogConnectionSingleton.connecting = false;
@@ -273,7 +273,7 @@ function connected(message, options, tries) {
         (syslogConnectionSingleton.connection.authorized ? 'a valid ' : 'an INVALID ') +
         'peer certificate. ' + syslogConnectionSingleton.droppedMessages + ' messages have been dropped.');
     logMessage(message, options, tries);
-};
+}
 
 function logMessage(log, options, tries) {
     // we are in circuit break mode. There is something wrong with the qradar connection. We won't try to
@@ -297,7 +297,7 @@ function logMessage(log, options, tries) {
     var formattedMessage = formatMessage(log.data.join(' | '), log.level && log.level.levelStr, options);
 
     syslogConnectionSingleton.connection.write(formattedMessage);
-};
+}
 
 function levelToSeverity(levelStr) {
     var levels = [
@@ -310,7 +310,7 @@ function levelToSeverity(levelStr) {
     ];
 
     return levels.indexOf(levelStr) !== -1 ? levels.indexOf(levelStr) + 1 : 4;
-};
+}
 
 function formatMessage(message, levelStr, options) {
     // format as:
@@ -329,7 +329,7 @@ function formatMessage(message, levelStr, options) {
         '-',
         message || '{}'
     );
-};
+}
 
 function configure(config) {
     if (process.env.log4js_syslog_appender_enabled !== 'true') {
@@ -337,7 +337,7 @@ function configure(config) {
     } else {
         return appender(config);
     }
-};
+}
 
 function parseToBoolean(val, defaultValue) {
     if (defaultValue) { // default is true
@@ -398,7 +398,7 @@ function verifyOptions(options) {
     })
 
     return valid;
-};
+}
 
 function shutdown(callback) {
     syslogConnectionSingleton.shutdown = true;
