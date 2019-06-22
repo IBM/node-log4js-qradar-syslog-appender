@@ -1,6 +1,6 @@
 {
   "name": "log4js-qradar-syslog-appender",
-  "version": "1.0.1",
+  "version": "2.0.0",
   "description": "",
   "main": "log4js-qradar-syslog-appender.js",
   "scripts": {
