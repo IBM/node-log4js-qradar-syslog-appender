@@ -1,6 +1,6 @@
 /**
  * Licensed Materials - Property of IBM
- * (c) Copyright IBM Corporation 2016. All Rights Reserved.
+ * (c) Copyright IBM Corporation 2016, 2019. All Rights Reserved.
  *
  * Note to U.S. Government Users Restricted Rights:
  * Use, duplication or disclosure restricted by GSA ADP Schedule
@@ -41,6 +41,8 @@ test('Test boolean useUdpSyslog=false uses Tcp', function(t) {
             throw err;
         }
         console.log('server bound on port 1514');
+
+        process.env.log4js_syslog_appender_enabled = 'true';
 
         log4js.configure({ 
             appenders: {

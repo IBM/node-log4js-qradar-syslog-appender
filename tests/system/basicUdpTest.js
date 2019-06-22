@@ -1,6 +1,6 @@
 /**
  * Licensed Materials - Property of IBM
- * (c) Copyright IBM Corporation 2016. All Rights Reserved.
+ * (c) Copyright IBM Corporation 2016, 2019. All Rights Reserved.
  *
  * Note to U.S. Government Users Restricted Rights:
  * Use, duplication or disclosure restricted by GSA ADP Schedule
@@ -18,11 +18,11 @@ test('Test message received by udp server', function(t) {
     var server = dgram.createSocket('udp4');
 
     server.on('error', function(err) {
-      console.log('server error:\n${err.stack}');
+      console.log(`server error:\n${err.stack}`);
       server.close();
     });
 
-    server.on('message', function(msg, rinfo) {
+    server.on('message', function(msg /*, rinfo*/) {
         console.log('received message: ' + msg.toString());
       t.ok(msg, 'did the message get received over udp?');
       t.end();
@@ -30,7 +30,6 @@ test('Test message received by udp server', function(t) {
     });
 
     server.on('listening', function() {
-      var address = server.address();
       console.log('server listening on port 1514');
     });
 
@@ -39,6 +38,8 @@ test('Test message received by udp server', function(t) {
             console.log('Error setting up syslog server: ' + JSON.stringify(err, null, 2));
             throw err;
         }
+
+        process.env.log4js_syslog_appender_enabled = 'true';
 
         log4js.configure({ 
             appenders: {
