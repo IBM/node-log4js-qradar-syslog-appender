@@ -6,17 +6,19 @@
  * Use, duplication or disclosure restricted by GSA ADP Schedule
  * Contract with IBM Corp.
  */
-/*eslint-env node */
 'use strict';
 
-var syslogConnectionSingleton = require('./syslog-connection-singleton'),
+const syslogConnectionSingleton = require('./syslog-connection-singleton'),
     base64Decode = require('./base64-decode'),
     tls = require('tls'),
     fs = require('fs'),
     util = require('util'),
     os = require('os'),
     dgram = require('dgram'),
-    net = require('net')
+    net = require('net'),
+    log4js = require('log4js');
+
+const logger = log4js.getLogger('log4js-qradar-syslog-appender');
 
 module.exports = {
     appender: appender,
@@ -74,6 +76,10 @@ function readBase64StringOrFile(base64, file, callback) {
 }
 
 function loggingFunction(options, log, tries) {
+
+    // internal log message. Do not cause infinite loop by attempting to syslog server.
+    if (log.categoryName === 'log4js-qradar-syslog-appender') return;
+
     if (syslogConnectionSingleton.shutdown) {
         return;
     }
@@ -139,7 +145,7 @@ function configureMutualAuth(options, callback) {
 
     readBase64StringOrFile(options.certificateBase64, options.certificatePath, function(err, certificate) {
         if (err) {
-            console.error('Error while loading certificate from path: ' + options.certificatePath + ' Error: ' + JSON.stringify(err, null, 2));
+            logger.error('Error while loading certificate from path: ' + options.certificatePath + ' Error: ' + JSON.stringify(err, null, 2));
             return;
         }
 
@@ -147,7 +153,7 @@ function configureMutualAuth(options, callback) {
 
         readBase64StringOrFile(options.privateKeyBase64, options.privateKeyPath, function(err, key) {
             if (err) {
-                console.error('Error while loading private key from path: ' + options.privateKeyPath + ' Error: ' + JSON.stringify(err, null, 2));
+                logger.error('Error while loading private key from path: ' + options.privateKeyPath + ' Error: ' + JSON.stringify(err, null, 2));
                 return;
             }
 
@@ -155,7 +161,7 @@ function configureMutualAuth(options, callback) {
 
             readBase64StringOrFile(options.caBase64, options.caPath, function(err, caCert) {
                 if (err) {
-                    console.error('Error while loading ca key from path: ' + options.caPath + ' Error: ' + JSON.stringify(err, null, 2));
+                    logger.error('Error while loading ca key from path: ' + options.caPath + ' Error: ' + JSON.stringify(err, null, 2));
                     return;
                 }
 
@@ -211,7 +217,7 @@ function attemptTcpConnection(log, tries, options, mutualAuth) {
 }
 
 function cleanupConnection(err, type) {
-    console.warn('QRadar Syslog appender: connection ' + type + '. Error: ' + JSON.stringify(err, null, 2));
+    logger.warn('Connection ' + type + '. Error: ' + JSON.stringify(err, null, 2));
     if (syslogConnectionSingleton.connection) {
         syslogConnectionSingleton.connection.destroy();
         syslogConnectionSingleton.connection = null;
@@ -260,7 +266,7 @@ function appender(config) {
     // deep clone of options
     var optionsClone = JSON.parse(JSON.stringify(options));
     delete optionsClone.privateKeyBase64;
-    internalLog('Syslog appender is enabled with options: ' + JSON.stringify(optionsClone, null, 2));
+    internalLog('Syslog appender is enabled with options: ' + JSON.stringify(optionsClone, null, 2), true);
 
     syslogConnectionSingleton.shutdown = false;
 
@@ -269,13 +275,14 @@ function appender(config) {
 
 function connected(message, options, tries) {
     syslogConnectionSingleton.connecting = false;
-    console.warn('QRadar Syslog appender: we have (re)connected to QRadar using a secure connection with ' +
+    logger.warn('We have (re)connected to QRadar using a secure connection with ' +
         (syslogConnectionSingleton.connection.authorized ? 'a valid ' : 'an INVALID ') +
         'peer certificate. ' + syslogConnectionSingleton.droppedMessages + ' messages have been dropped.');
     logMessage(message, options, tries);
 }
 
 function logMessage(log, options, tries) {
+
     // we are in circuit break mode. There is something wrong with the qradar connection. We won't try to
     // send any log messages to qradar until the circuit is connected again.
     if (syslogConnectionSingleton.circuitBreak) {
@@ -360,7 +367,7 @@ function verifyOptions(options) {
         var key = option.substring(option.lastIndexOf('_')+1);
         if (!options[key]) {
             internalLog(key + ' is a required option. It is settable with the ' +
-                option + ' environment variable.');
+                option + ' environment variable.', true);
             valid = false; // array.forEach is blocking
         }
     });
@@ -377,23 +384,23 @@ function verifyOptions(options) {
             internalLog('In order to enable ' + 'mutual auth, either ' + key +
                 'Path or ' + key +
                 'Base64 are required options. It is settable with the ' +
-                option + ' environment variable.');
+                option + ' environment variable.', true);
         }
 
         // Deprecated warnings.
         if (options[key + "Path"]) {
             if (options.useUdpSyslog) {
                 internalLog('WARNING env var ' + key +
-                    'Path will not be used for unencrypted syslog UDP/514.');
+                    'Path will not be used for unencrypted syslog UDP/514.', true);
             } else {
                 internalLog('WARNING env var ' + key + 
                     'Path is now deprecated and will be removed in a future' + 
-                    ' release. Please switch to ' + key + 'Base64 instead.');
+                    ' release. Please switch to ' + key + 'Base64 instead.', true);
             }
         }
         if (options[key + "Base64"] && options.useUdpSyslog) {
             internalLog('WARNING env var ' + key + 
-                'Base64 will not be used for unencrypted syslog UDP/514.');
+                'Base64 will not be used for unencrypted syslog UDP/514.', true);
         }
     })
 
@@ -406,6 +413,13 @@ function shutdown(callback) {
     callback();
 }
 
-function internalLog(msg) {
-    util.log('QRadar node-log4js-syslog-appender: ' + msg);
+function internalLog(msg, delay) {
+    if (delay) { // let log4js configuration to complete before sending a message using it.
+        setTimeout(() => {
+                logger.info(`${msg}`);
+            }, 5000);
+    }
+    else {
+        logger.info(`${msg}`);
+    }
 }

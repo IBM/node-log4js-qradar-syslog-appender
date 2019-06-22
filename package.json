@@ -1,7 +1,7 @@
 {
   "name": "log4js-qradar-syslog-appender",
-  "version": "2.0.0",
-  "description": "",
+  "version": "2.1.0",
+  "description": "Node.js Log4js syslog appender for QRadar",
   "main": "log4js-qradar-syslog-appender.js",
   "scripts": {
     "test": "npm run test:lint && npm run test:unit && npm run test:system",
