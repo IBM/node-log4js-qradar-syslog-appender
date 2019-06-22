@@ -42,11 +42,7 @@ specifying which loggers' log messages to send via the comma separated list env 
         "options": {
                 "host": "syslog.prd.ccs.ibmcloud.com",
                 "port": "6514",
-                "certificatePath": "keys/IDS-crt.pem",
-                "privateKeyPath": "keys/IDS-key.pem",
-                "caPath": "keys/ca.pem",
-                "product": "otc-api",
-                "url": "devops.ng.bluemix.net"
+                "product": "otc-api"
           }
 }
 ```
