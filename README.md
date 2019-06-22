@@ -23,7 +23,7 @@ Signed-off-by: John Doe <john.doe@example.org>
 # Usage
 
 ## Pre-requisites
-You must be using [log4js-node](https://github.com/nomiddlename/log4js-node) 3.x or 4.x, and must call `log4js.configure('/path/to/log4js.json')`
+You must be using [log4js-node](https://github.com/nomiddlename/log4js-node) 3.x or higher, and must call `log4js.configure('/path/to/log4js.json')`
 somewhere in your code.
 
 
