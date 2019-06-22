@@ -18,11 +18,11 @@ test('Test message received by udp server', function(t) {
     var server = dgram.createSocket('udp4');
 
     server.on('error', function(err) {
-      console.log('server error:\n${err.stack}');
+      console.log(`server error:\n${err.stack}`);
       server.close();
     });
 
-    server.on('message', function(msg, rinfo) {
+    server.on('message', function(msg /*, rinfo*/) {
         console.log('received message: ' + msg.toString());
       t.ok(msg, 'did the message get received over udp?');
       t.end();
@@ -30,7 +30,6 @@ test('Test message received by udp server', function(t) {
     });
 
     server.on('listening', function() {
-      var address = server.address();
       console.log('server listening on port 1514');
     });
 
