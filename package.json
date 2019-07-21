@@ -1,6 +1,6 @@
 {
   "name": "log4js-qradar-syslog-appender",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Node.js Log4js syslog appender for QRadar",
   "main": "log4js-qradar-syslog-appender.js",
   "scripts": {
@@ -16,9 +16,9 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "eslint": "^6.0.0",
-    "log4js": "^4.3.2",
+    "eslint": "^6.0.1",
+    "log4js": "^4.5.1",
     "tap-spec": "^5.0.0",
-    "tape": "^4.10.2"
+    "tape": "^4.11.0"
   }
 }
