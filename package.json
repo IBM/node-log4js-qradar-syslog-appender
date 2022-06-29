@@ -1,12 +1,12 @@
 {
   "name": "log4js-qradar-syslog-appender",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "Node.js Log4js syslog appender for QRadar",
   "main": "log4js-qradar-syslog-appender.js",
   "scripts": {
     "test": "npm run test:lint && npm run test:unit && npm run test:system",
     "test:lint": "node node_modules/eslint/bin/eslint .",
-    "test:unit": "bash -c '(chmod u+x scripts/runUnitTests.sh; scripts/runUnitTests.sh)'",
+    "test:unit": "tape tests/unit/*.js | tap-arc",
     "test:system": "bash -c '(chmod u+x scripts/runSystemTests.sh; scripts/runSystemTests.sh)'"
   },
   "author": "Herman Singh Badwal <ssjherman@gmail.com>",
@@ -16,9 +16,9 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "eslint": "^6.0.1",
-    "log4js": "^4.5.1",
-    "tap-spec": "^5.0.0",
-    "tape": "^4.11.0"
+    "eslint": "^8.18.0",
+    "log4js": "^6.5.2",
+    "tap-arc": "^0.3.4",
+    "tape": "^5.5.3"
   }
 }

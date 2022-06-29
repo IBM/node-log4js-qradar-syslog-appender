@@ -14,7 +14,7 @@ do
   do   
     filename="${file##*/}"
     echo "$file:"
-    [ -f "$file" ] && node_modules/.bin/tape "${file}" | node_modules/.bin/tap-spec 
+    [ -f "$file" ] && node_modules/.bin/tape "${file}" | node_modules/.bin/tap-arc 
     if [ $? -ne 0 ] ; then
       isTestRunSuccessful=false
     fi
