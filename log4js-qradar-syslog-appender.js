@@ -21,9 +21,7 @@ const syslogConnectionSingleton = require('./syslog-connection-singleton'),
 const logger = log4js.getLogger('log4js-qradar-syslog-appender');
 
 module.exports = {
-    appender: appender,
-    configure: configure,
-    shutdown: shutdown
+    configure: configure
 };
 
 function retryLogic(retryFunction, tries) {
@@ -270,8 +268,20 @@ function appender(config) {
 
     syslogConnectionSingleton.shutdown = false;
 
-    return loggingFunction.bind(this, options);
+    const appender = (loggingEvent) => {
+        loggingFunction(options, loggingEvent);
+    };
+
+    appender.shutdown = (callback) => {
+        syslogConnectionSingleton.shutdown = true;
+        cleanupConnection('log4js is shutting down', 'shutting down');
+        callback();
+    }
+
+    return appender;
 }
+
+
 
 function connected(message, options, tries) {
     syslogConnectionSingleton.connecting = false;
@@ -405,12 +415,6 @@ function verifyOptions(options) {
     })
 
     return valid;
-}
-
-function shutdown(callback) {
-    syslogConnectionSingleton.shutdown = true;
-    cleanupConnection('log4js is shutting down', 'shutting down');
-    callback();
 }
 
 function internalLog(msg, delay) {
